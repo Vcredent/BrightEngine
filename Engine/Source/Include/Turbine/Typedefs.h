@@ -44,7 +44,7 @@
 #define ARRAY_SIZE(a) ( sizeof(a) / sizeof(a[0]) )
 
 #if defined(__MINGW32__)
-#  define _CURDIR(path) "../" path
+#  define _RESOURCE(path) "../../../../Engine/Resource" path
 #elif defined(_MSC_VER)
 #  define _CURDIR(path) "../../../" path
 #endif

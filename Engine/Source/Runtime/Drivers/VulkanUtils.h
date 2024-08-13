@@ -85,7 +85,7 @@ static VkShaderModule LoadShaderModule(VkDevice device, const char *name, const 
     VkResult U_ASSERT_ONLY err;
 
     char path[255];
-    snprintf(path, sizeof(path), _CURDIR("shader/%s.%s.spv"), name, stage);
+    snprintf(path, sizeof(path), _RESOURCE("shader/%s.%s.spv"), name, stage);
 
     buf = IOUtils::ReadByteCode(path, &size);
 
