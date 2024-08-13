@@ -32,6 +32,8 @@ The IDE:
 
     if you use `Visual Studio` IDE, i'm not sure if you can run the project directly after opening it, You might need to configure some environments or libraries. 
 
+**Remember**: Copy `libode_doubled.dll` in `thirdparty/ode` directory to your build directory.
+
 ## Preview editor
 
 -----------
