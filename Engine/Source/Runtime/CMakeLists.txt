@@ -23,7 +23,11 @@
 set(LIBRARY_NAME "Runtime")
 
 file(GLOB_RECURSE SOURCES
-  "*.cpp"
+  "Drivers/*.cpp"
+  "Win32/*.cpp"
+  "Window/*.cpp"
+  "${TURBINE_THIRDPARTY_DIRECTORY}/vma/*.cpp"
+  "${TURBINE_THIRDPARTY_DIRECTORY}/volk/*.cpp"
 )
 
 include_directories(SYSTEM ${TURBINE_THIRDPARTY_DIRECTORY})
@@ -41,6 +45,16 @@ set(LINK_LIBRARIES
 
 add_library(${LIBRARY_NAME} STATIC ${SOURCES})
 
-target_link_directories(${LIBRARY_NAME} PUBLIC ${LINK_DIRECTORIES})
-target_link_libraries(${LIBRARY_NAME} PUBLIC ${LINK_LIBRARIES})
-target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC "${TURBINE_ROOT_DIRECTORY}/Engine/Source")
+target_link_directories(${LIBRARY_NAME} PUBLIC
+  ${LINK_DIRECTORIES}
+)
+
+target_link_libraries(${LIBRARY_NAME} PUBLIC
+  ${LINK_LIBRARIES}
+)
+
+target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC
+  "${TURBINE_ROOT_DIRECTORY}/Engine/Source"
+  "${TURBINE_ROOT_DIRECTORY}/Engine/Source/Runtime"
+  "${TURBINE_THIRDPARTY_DIRECTORY}"
+)

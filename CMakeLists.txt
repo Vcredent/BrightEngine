@@ -33,5 +33,7 @@ endif()
 set(TURBINE_ROOT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 set(TURBINE_THIRDPARTY_DIRECTORY "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ThirdParty")
 
+include_directories(SYSTEM "${TURBINE_ROOT_DIRECTORY}/Engine/Source/Include")
+
 add_subdirectory("Engine/Source/Runtime")
 add_subdirectory("Engine/Source/Sandbox")

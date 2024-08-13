@@ -20,11 +20,24 @@
 /* | limitations under the License.                                           | */
 /* |                                                                          | */
 /* \ ------------------------------------------------------------------------ / */
-#include <iostream>
 #include <Runtime/Drivers/RenderDevice.h>
+#include <Runtime/Window/Window.h>
+#include <Runtime/Win32/RenderDeviceCotnextWin32.h>
 
 int main()
 {
-    std::cout << "x + y = " << add(10, 10) << std::endl;
+    Window *window = new Window("TurbineEngine", 1080, 1060);
+    RenderDeviceContextWin32 *rdc = new RenderDeviceContextWin32(window);
+    rdc->initialize();
+    RenderDevice *rd = rdc->load_render_device();
+    
+    while (!window->is_close()) {
+        window->poll_events();
+    }
+
+    rdc->destroy_render_device(rd);
+    delete rdc;
+    delete window;
+
     return 0;
 }
