@@ -16,8 +16,6 @@ Some links to learning resource:
 
 ## Build environment requirements
 
-------------
-
 - `MinGW` or other toolchains
 - `CMake`
 
