@@ -32,5 +32,5 @@ add_executable(${PROGRAM_NAME}
 
 target_link_libraries(${PROGRAM_NAME} PRIVATE
   "Runtime"
-  "NavUI"
+  "ImGuiNav"
 )

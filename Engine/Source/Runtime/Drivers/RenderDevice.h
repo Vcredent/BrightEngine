@@ -51,7 +51,7 @@ public:
     void CreateRenderPass(uint32_t attachment_count, VkAttachmentDescription *p_attachments, uint32_t subpass_count, VkSubpassDescription *p_subpass, uint32_t dependency_count, VkSubpassDependency *p_dependencies, VkRenderPass *p_render_pass);
     void DestroyRenderPass(VkRenderPass render_pass);
     void AllocateCommandBuffer(VkCommandBuffer *p_cmd_buffer);
-    void FreeCommandBuffer(VkCommandBuffer cmd_buffer);
+    void FreeCommandBuffer(VkCommandBuffer cmdBuffer);
 
     struct Texture2D {
         VkImage image;
@@ -146,10 +146,10 @@ public:
     Pipeline *CreateComputePipeline(ComputeShaderInfo *p_shader_info);
     void DestroyPipeline(Pipeline *p_pipeline);
 
-    void BeginCommandBuffer(VkCommandBuffer cmd_buffer, VkCommandBufferUsageFlags usage);
-    void EndCommandBuffer(VkCommandBuffer cmd_buffer);
+    void BeginCommandBuffer(VkCommandBuffer cmdBuffer, VkCommandBufferUsageFlags usage);
+    void EndCommandBuffer(VkCommandBuffer cmdBuffer);
     void BeginCommandBufferOneTime(VkCommandBuffer *p_cmd_buffer);
-    void EndCommandBufferOneTime(VkCommandBuffer cmd_buffer);
+    void EndCommandBufferOneTime(VkCommandBuffer cmdBuffer);
 
     struct PipelineMemoryBarrier {
         struct {
@@ -161,19 +161,19 @@ public:
         } image;
     };
 
-    void CmdPipelineBarrier(VkCommandBuffer cmd_buffer, const PipelineMemoryBarrier *p_pipeline_memory_barrier);
+    void CmdPipelineBarrier(VkCommandBuffer cmdBuffer, const PipelineMemoryBarrier *p_pipeline_memory_barrier);
 
-    void CmdBeginRenderPass(VkCommandBuffer cmd_buffer, VkRenderPass render_pass, uint32_t clear_value_count, VkClearValue *p_clear_values, VkFramebuffer framebuffer, VkRect2D *p_rect);
-    void CmdEndRenderPass(VkCommandBuffer cmd_buffer);
-    void CmdBindVertexBuffer(VkCommandBuffer cmd_buffer, Buffer *p_buffer);
-    void CmdBindIndexBuffer(VkCommandBuffer cmd_buffer, VkIndexType type, Buffer *p_buffer);
-    void CmdDraw(VkCommandBuffer cmd_buffer, uint32_t vertex_count);
-    void CmdDrawIndexed(VkCommandBuffer cmd_buffer, uint32_t index_count);
-    void CmdBindPipeline(VkCommandBuffer cmd_buffer, Pipeline *p_pipeline);
-    void CmdBufferSubmit(VkCommandBuffer cmd_buffer, uint32_t wait_semaphore_count, VkSemaphore *p_wait_semaphore, uint32_t signal_semaphore_count, VkSemaphore *p_signal_semaphore, VkPipelineStageFlags *p_mask, VkQueue queue, VkFence fence);
-    void CmdBindDescriptorSet(VkCommandBuffer cmd_buffer, Pipeline *p_pipeline, VkDescriptorSet descriptor);
-    void CmdSetViewport(VkCommandBuffer cmd_buffer , uint32_t w, uint32_t h);
-    void CmdPushConstant(VkCommandBuffer cmd_buffer, RenderDevice::Pipeline *pipeline, VkShaderStageFlags shader_stage_flags, uint32_t offset, uint32_t size, void *p_values);
+    void CmdBeginRenderPass(VkCommandBuffer cmdBuffer, VkRenderPass render_pass, uint32_t clear_value_count, VkClearValue *p_clear_values, VkFramebuffer framebuffer, VkRect2D *p_rect);
+    void CmdEndRenderPass(VkCommandBuffer cmdBuffer);
+    void CmdBindVertexBuffer(VkCommandBuffer cmdBuffer, Buffer *p_buffer);
+    void CmdBindIndexBuffer(VkCommandBuffer cmdBuffer, VkIndexType type, Buffer *p_buffer);
+    void CmdDraw(VkCommandBuffer cmdBuffer, uint32_t vertex_count);
+    void CmdDrawIndexed(VkCommandBuffer cmdBuffer, uint32_t index_count);
+    void CmdBindPipeline(VkCommandBuffer cmdBuffer, Pipeline *p_pipeline);
+    void CmdBufferSubmit(VkCommandBuffer cmdBuffer, uint32_t wait_semaphore_count, VkSemaphore *p_wait_semaphore, uint32_t signal_semaphore_count, VkSemaphore *p_signal_semaphore, VkPipelineStageFlags *p_mask, VkQueue queue, VkFence fence);
+    void CmdBindDescriptorSet(VkCommandBuffer cmdBuffer, Pipeline *p_pipeline, VkDescriptorSet descriptor);
+    void CmdSetViewport(VkCommandBuffer cmdBuffer , uint32_t w, uint32_t h);
+    void CmdPushConstant(VkCommandBuffer cmdBuffer, RenderDevice::Pipeline *pipeline, VkShaderStageFlags shader_stage_flags, uint32_t offset, uint32_t size, void *p_values);
     void Present(VkQueue queue, VkSwapchainKHR swap_chain, uint32_t index, VkSemaphore wait_semaphore);
 
 private:

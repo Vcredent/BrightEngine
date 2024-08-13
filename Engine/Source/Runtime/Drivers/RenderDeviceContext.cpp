@@ -201,9 +201,9 @@ void RenderDeviceContext::AllocateCommandBuffer(VkCommandBufferLevel level, VkCo
     assert(!err);
 }
 
-void RenderDeviceContext::FreeCommandBuffer(VkCommandBuffer cmd_buffer)
+void RenderDeviceContext::FreeCommandBuffer(VkCommandBuffer cmdBuffer)
 {
-    vkFreeCommandBuffers(device, commandPool, 1, &cmd_buffer);
+    vkFreeCommandBuffers(device, commandPool, 1, &cmdBuffer);
 }
 
 void RenderDeviceContext::_InitializeWindowArguments(VkSurfaceKHR surface)

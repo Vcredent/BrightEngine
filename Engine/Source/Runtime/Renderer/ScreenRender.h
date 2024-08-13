@@ -31,18 +31,20 @@ public:
     ScreenRender(RenderDevice *p_render_device);
    ~ScreenRender();
 
-    VkRenderPass get_render_pass() { return window->render_pass; }
-    uint32_t get_image_buffer_count() { return window->image_buffer_count; }
-    Window *get_focused_window() { return focused_window; }
+    RenderDevice *GetRenderDevice() { return rd; }
+    VkRenderPass GetRenderPass() { return window->render_pass; }
+    uint32_t GetImageBufferCount() { return window->image_buffer_count; }
+    Window *GetFocusedWindow() { return currentFocusedWindow; }
+    void *GetNativeWindow() { return currentFocusedWindow->GetNativeWindow(); }
 
-    void initialize(Window *v_focused_window);
+    void Initialize(Window *v_focused_window);
 
-    void cmd_begin_screen_render(VkCommandBuffer *p_cmd_buffer);
-    void cmd_end_screen_render(VkCommandBuffer cmd_buffer);
+    void CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer);
+    void CmdEndScreenRendering(VkCommandBuffer cmdBuffer);
 
 private:
     struct SwapchainResource {
-        VkCommandBuffer cmd_buffer;
+        VkCommandBuffer cmdBuffer;
         VkImage image;
         VkImageView image_view;
         VkFramebuffer framebuffer;
@@ -64,9 +66,9 @@ private:
         uint32_t height;
     };
 
-    void _create_swap_chain();
-    void _clean_up_swap_chain();
-    void _update_swap_chain();
+    void _CreateSwapChain();
+    void _CleanUpSwapChain();
+    void _UpdateSwapChain();
 
     RenderDevice *rd = VK_NULL_HANDLE;
     VkInstance vk_instance = VK_NULL_HANDLE;
@@ -76,7 +78,7 @@ private:
     VkCommandPool vk_cmd_pool = VK_NULL_HANDLE;
     _Window *window = VK_NULL_HANDLE;
     VkQueue vk_graph_queue = VK_NULL_HANDLE;
-    Window *focused_window = VK_NULL_HANDLE;
+    Window *currentFocusedWindow = VK_NULL_HANDLE;
 
     uint32_t acquire_next_index;
 };

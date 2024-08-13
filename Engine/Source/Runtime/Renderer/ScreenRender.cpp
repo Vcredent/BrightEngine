@@ -40,19 +40,19 @@ ScreenRender::~ScreenRender()
     vkDestroySemaphore(vk_device, window->render_finished_semaphore, allocation_callbacks);
     vkDestroySwapchainKHR(vk_device, window->swap_chain, allocation_callbacks);
     vkDestroyRenderPass(vk_device, window->render_pass, allocation_callbacks);
-    _clean_up_swap_chain();
+    _CleanUpSwapChain();
     vkDestroySurfaceKHR(vk_instance, window->vk_surface, allocation_callbacks);
     free(window);
 }
 
-void ScreenRender::initialize(Window *v_focused_window)
+void ScreenRender::Initialize(Window *v_focused_window)
 {
     VkResult U_ASSERT_ONLY err;
 
     /* imalloc display window struct and set surface */
     window = (_Window *) imalloc(sizeof(_Window));
-    focused_window = v_focused_window;
-    focused_window->CreateVulkanSurfaceKHR(vk_instance, allocation_callbacks, &window->vk_surface);
+    currentFocusedWindow = v_focused_window;
+    currentFocusedWindow->CreateVulkanSurfaceKHR(vk_instance, allocation_callbacks, &window->vk_surface);
 
     VkSurfaceCapabilitiesKHR capabilities;
     err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physical_device, window->vk_surface, &capabilities);
@@ -90,17 +90,17 @@ void ScreenRender::initialize(Window *v_focused_window)
     err = vkCreateSemaphore(vk_device, &semaphore_create_info, allocation_callbacks, &window->render_finished_semaphore);
     assert(!err);
 
-    _create_swap_chain();
+    _CreateSwapChain();
 }
 
-void ScreenRender::cmd_begin_screen_render(VkCommandBuffer *p_cmd_buffer)
+void ScreenRender::CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer)
 {
-    _update_swap_chain();
+    _UpdateSwapChain();
     vkAcquireNextImageKHR(vk_device, window->swap_chain, UINT64_MAX, window->image_available_semaphore, nullptr, &acquire_next_index);
 
-    VkCommandBuffer cmd_buffer;
-    cmd_buffer = window->swap_chain_resources[acquire_next_index].cmd_buffer;
-    rd->BeginCommandBuffer(cmd_buffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
+    VkCommandBuffer cmdBuffer;
+    cmdBuffer = window->swap_chain_resources[acquire_next_index].cmdBuffer;
+    rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
 
     VkClearValue clear_color = {
             0.10f, 0.10f, 0.10f, 1.0f
@@ -108,22 +108,22 @@ void ScreenRender::cmd_begin_screen_render(VkCommandBuffer *p_cmd_buffer)
 
     VkRect2D rect = {};
     rect.extent = { window->width, window->height };
-    rd->CmdBeginRenderPass(cmd_buffer, window->render_pass, 1, &clear_color, window->swap_chain_resources[acquire_next_index].framebuffer, &rect);
+    rd->CmdBeginRenderPass(cmdBuffer, window->render_pass, 1, &clear_color, window->swap_chain_resources[acquire_next_index].framebuffer, &rect);
 
-    *p_cmd_buffer = cmd_buffer;
+    *p_cmd_buffer = cmdBuffer;
 }
 
-void ScreenRender::cmd_end_screen_render(VkCommandBuffer cmd_buffer)
+void ScreenRender::CmdEndScreenRendering(VkCommandBuffer cmdBuffer)
 {
-    rd->CmdEndRenderPass(cmd_buffer);
-    rd->EndCommandBuffer(cmd_buffer);
+    rd->CmdEndRenderPass(cmdBuffer);
+    rd->EndCommandBuffer(cmdBuffer);
 
     VkPipelineStageFlags mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    rd->CmdBufferSubmit(cmd_buffer, 1, &window->image_available_semaphore, 1, &window->render_finished_semaphore, &mask, vk_graph_queue, VK_NULL_HANDLE);
+    rd->CmdBufferSubmit(cmdBuffer, 1, &window->image_available_semaphore, 1, &window->render_finished_semaphore, &mask, vk_graph_queue, VK_NULL_HANDLE);
     rd->Present(vk_graph_queue, window->swap_chain, acquire_next_index, window->render_finished_semaphore);
 }
 
-void ScreenRender::_create_swap_chain()
+void ScreenRender::_CreateSwapChain()
 {
     VkResult U_ASSERT_ONLY err;
     VkSwapchainKHR old_swap_chain;
@@ -227,7 +227,7 @@ void ScreenRender::_create_swap_chain()
                 /* commandBufferCount */ 1
         };
 
-        vkAllocateCommandBuffers(vk_device, &cmd_allocate_info, &(window->swap_chain_resources[i].cmd_buffer));
+        vkAllocateCommandBuffers(vk_device, &cmd_allocate_info, &(window->swap_chain_resources[i].cmdBuffer));
 
         VkImageViewCreateInfo image_view_create_info = {
                 /* sType */ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -275,10 +275,10 @@ void ScreenRender::_create_swap_chain()
     }
 }
 
-void ScreenRender::_clean_up_swap_chain()
+void ScreenRender::_CleanUpSwapChain()
 {
     for (uint32_t i = 0; i < window->image_buffer_count; i++) {
-        vkFreeCommandBuffers(vk_device, vk_cmd_pool, 1, &window->swap_chain_resources[i].cmd_buffer);
+        vkFreeCommandBuffers(vk_device, vk_cmd_pool, 1, &window->swap_chain_resources[i].cmdBuffer);
         vkDestroyFramebuffer(vk_device, window->swap_chain_resources[i].framebuffer, allocation_callbacks);
         vkDestroyImageView(vk_device, window->swap_chain_resources[i].image_view, allocation_callbacks);
     }
@@ -286,7 +286,7 @@ void ScreenRender::_clean_up_swap_chain()
     free(window->swap_chain_resources);
 }
 
-void ScreenRender::_update_swap_chain()
+void ScreenRender::_UpdateSwapChain()
 {
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physical_device, window->vk_surface, &capabilities);
@@ -295,7 +295,7 @@ void ScreenRender::_update_swap_chain()
     /* is update */
     if ((extent.width != window->width || extent.height != window->height) && (extent.width != 0 || extent.height != 0)) {
         vkDeviceWaitIdle(vk_device);
-        _clean_up_swap_chain();
-        _create_swap_chain();
+        _CleanUpSwapChain();
+        _CreateSwapChain();
     }
 }

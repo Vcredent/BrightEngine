@@ -20,7 +20,7 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ======================================================================== */
-#include "NavUI.h"
+#include "ImGuiNav.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_vulkan.h"
 #include <Turbine/Typedefs.h>
@@ -43,11 +43,8 @@ void _DarkNavUITheme()
     colors[ImGuiCol_TitleBg]                = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
     colors[ImGuiCol_TitleBgActive]          = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
     colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-//  colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-//  colors[ImGuiCol_MenuBarBg]              = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
     colors[ImGuiCol_MenuBarBg]              = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
     colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
-//  colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.58f, 0.58f, 0.58f, 0.54f);
     colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.00f, 0.46f, 1.00f, 0.54f);
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.40f, 0.40f, 0.40f, 0.54f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
@@ -57,7 +54,6 @@ void _DarkNavUITheme()
     colors[ImGuiCol_Button]                 = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
     colors[ImGuiCol_ButtonHovered]          = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
     colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-//  colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
     colors[ImGuiCol_Header]                 = ImVec4(0.25f, 0.25f, 0.25f, 0.52f);
     colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
     colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
@@ -73,7 +69,7 @@ void _DarkNavUITheme()
     colors[ImGuiCol_TabUnfocused]           = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
     colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
@@ -138,9 +134,9 @@ void _CheckDraggingCursor()
     }
   }
 
-namespace NavUI {
+namespace ImGuiNav {
 
-    void Initialize(InitializeInfo *p_initialize_info)
+    void Initialize(ScreenRender *screen)
       {
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -172,24 +168,26 @@ namespace NavUI {
         _DarkNavUITheme();
 
         // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForVulkan(p_initialize_info->window, true);
+          _window = (GLFWwindow *) screen->GetNativeWindow();
+          ImGui_ImplGlfw_InitForVulkan(_window, true);
+
+        RenderDevice *rd = screen->GetRenderDevice();
+        RenderDeviceContext *rdc = rd->GetDeviceContext();
 
         ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.Instance = p_initialize_info->Instance;
-        init_info.PhysicalDevice = p_initialize_info->PhysicalDevice;
-        init_info.Device = p_initialize_info->Device;
-        init_info.QueueFamily = p_initialize_info->QueueFamily;
-        init_info.Queue = p_initialize_info->Queue;
+        init_info.Instance = rdc->GetInstance();
+        init_info.PhysicalDevice = rdc->GetPhysicalDevice();
+        init_info.Device = rdc->GetDevice();
+        init_info.QueueFamily = rdc->GetQueueFamily();
+        init_info.Queue = rdc->GetQueue();
         init_info.PipelineCache = VK_NULL_HANDLE;
-        init_info.DescriptorPool = p_initialize_info->DescriptorPool;
-        init_info.RenderPass = p_initialize_info->RenderPass;
+        init_info.DescriptorPool = rd->GetDescriptorPool();
+        init_info.RenderPass = screen->GetRenderPass();
         init_info.Subpass = 0;
-        init_info.MinImageCount = p_initialize_info->MinImageCount;
-        init_info.ImageCount = p_initialize_info->ImageCount;
-        init_info.MSAASamples = p_initialize_info->MSAASamples;
+        init_info.MinImageCount = screen->GetImageBufferCount();
+        init_info.ImageCount = screen->GetImageBufferCount();
+        init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         ImGui_ImplVulkan_Init(&init_info);
-
-        _window = p_initialize_info->window;
       }
 
     void Terminate()
@@ -198,7 +196,7 @@ namespace NavUI {
         ImGui_ImplVulkan_Shutdown();
       }
 
-    void BeginNewFrame(VkCommandBuffer cmd_buffer)
+    void BeginNewFrame(VkCommandBuffer U_MAYBE_UNUSED cmdBuffer)
       {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -208,14 +206,14 @@ namespace NavUI {
         ImGui::DockSpaceOverViewport();
       }
 
-    void EndNewFrame(VkCommandBuffer cmd_buffer)
+    void EndNewFrame(VkCommandBuffer cmdBuffer)
       {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
         // Rendering
         ImGui::Render();
         ImDrawData* main_draw_data = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(main_draw_data, cmd_buffer);
+        ImGui_ImplVulkan_RenderDrawData(main_draw_data, cmdBuffer);
 
         // Update and Render additional Platform Windows
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
@@ -258,48 +256,6 @@ namespace NavUI {
         ImGui::Image(v_texture, v_size);
       }
 
-    void DragFloat(const char *label, float *v, float v_speed, float v_min, float v_max, const char *format)
-      {
-        _DragScalarN(label, v, 1, v_speed, v_min, v_max, format);
-      }
-
-    void DragFloat2(const char *label, float *v, float v_speed, float v_min, float v_max, const char *format)
-      {
-        _DragScalarN(label, v, 2, v_speed, v_min, v_max, format);
-      }
-
-    void DragFloat3(const char *label, float *v, float v_speed, float v_min, float v_max, const char *format)
-      {
-        _DragScalarN(label, v, 3, v_speed, v_min, v_max, format);
-      }
-
-    void DragFloat4(const char *label, float *v, float v_speed, float v_min, float v_max, const char *format)
-      {
-        _DragScalarN(label, v, 4, v_speed, v_min, v_max, format);
-      }
-
-    void ColorEdit3(const char* label, float *col, ImGuiColorEditFlags flags)
-      {
-        ImGui::PushID(label);
-        ImGui::Indent(32.0f);
-        ImGui::TextUnformatted(label);
-        ImGui::SameLine();
-        ImGui::ColorEdit3("", col, flags);
-        ImGui::Unindent(32.0f);
-        ImGui::PopID();
-      }
-
-    void SliderFloat(const char* label, float* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-      {
-        ImGui::PushID(label);
-        ImGui::Indent(32.0f);
-        ImGui::TextUnformatted(label);
-        ImGui::SameLine();
-        ImGui::SliderFloat("", v, v_min, v_max, format, flags);
-        ImGui::Unindent(32.0f);
-        ImGui::PopID();
-      }
-
     ImTextureID AddTexture(VkSampler v_sampler, VkImageView v_image, VkImageLayout v_layout)
       {
         return ImGui_ImplVulkan_AddTexture(v_sampler, v_image, v_layout);
@@ -308,52 +264,6 @@ namespace NavUI {
     void RemoveTexture(ImTextureID v_texture)
       {
         ImGui_ImplVulkan_RemoveTexture((VkDescriptorSet) v_texture);
-      }
-
-    void _DragScalarN(const char *label, float *v, int v_number, float v_speed, float v_min, float v_max, const char *format)
-      {
-        assert(v_number <= 4);
-
-        ImGui::BeginGroup();
-        ImGui::PushID(label);
-        ImGui::Indent(32.0f);
-        ImGui::TextUnformatted(label);
-        ImGui::SameLine();
-
-        static const char  *axis_labels[4] = { "X", "Y", "Z", "W" };
-        static const ImVec4 axis_colors[4] = {
-                ImVec4(1.0f, 0.0f, 0.0f, 1.0f), // R
-                ImVec4(0.0f, 1.0f, 0.0f, 1.0f), // G
-                ImVec4(0.0f, 0.4f, 1.0f, 1.0f), // B
-                ImVec4(1.0f, 1.0f, 1.0f, 1.0f), // W
-        };
-
-        if (v_number > 1) {
-            ImVec2 region = ImGui::GetContentRegionAvail();
-            float single_item_width = region.x * 0.65f / 3;
-            for (int i = 0; i < v_number; i++) {
-                const char *id = axis_labels[i];
-                ImGui::PushID(id);
-                ImGui::PushItemWidth(single_item_width);
-                ImGui::TextColored(axis_colors[i], axis_labels[i]);
-                ImGui::SameLine();
-                ImGui::DragFloat("", &v[i], v_speed, v_min, v_max, format);
-                _CheckDraggingCursor();
-                ImGui::SameLine();
-                ImGui::PopItemWidth();
-                ImGui::PopID();
-            }
-            goto DRAG_SCALAR_N_END_TAG;
-        }
-
-        // if v_number < 1
-        ImGui::DragFloat("", v, v_speed, v_min, v_max, format);
-        _CheckDraggingCursor();
-
-        DRAG_SCALAR_N_END_TAG:
-        ImGui::Unindent(32.0f);
-        ImGui::PopID();
-        ImGui::EndGroup();
       }
 
 }

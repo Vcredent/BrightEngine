@@ -64,7 +64,7 @@ public:
     VkSampleCountFlagBits GetMaxMSAASampleCounts() { return maxMSAASampleCounts; }
 
     void AllocateCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer *p_cmd_buffer);
-    void FreeCommandBuffer(VkCommandBuffer cmd_buffer);
+    void FreeCommandBuffer(VkCommandBuffer cmdBuffer);
 
 protected:
     void _InitializeWindowArguments(VkSurfaceKHR surface);

@@ -113,9 +113,9 @@ void RenderDevice::AllocateCommandBuffer(VkCommandBuffer *p_cmd_buffer)
     rdc->AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, p_cmd_buffer);
 }
 
-void RenderDevice::FreeCommandBuffer(VkCommandBuffer cmd_buffer)
+void RenderDevice::FreeCommandBuffer(VkCommandBuffer cmdBuffer)
 {
-    rdc->FreeCommandBuffer(cmd_buffer);
+    rdc->FreeCommandBuffer(cmdBuffer);
 }
 
 RenderDevice::Texture2D *RenderDevice::CreateTexture(TextureCreateInfo *p_create_info)
@@ -197,8 +197,8 @@ void RenderDevice::WriteTexture(Texture2D *texture, size_t size, void *pixels)
 
     texture->size = size;
 
-    VkCommandBuffer cmd_buffer;
-    BeginCommandBufferOneTime(&cmd_buffer);
+    VkCommandBuffer cmdBuffer;
+    BeginCommandBufferOneTime(&cmdBuffer);
 
     PipelineMemoryBarrier barrier;
     barrier.image.texture = texture;
@@ -206,7 +206,7 @@ void RenderDevice::WriteTexture(Texture2D *texture, size_t size, void *pixels)
     barrier.image.new_image_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     barrier.image.src_access_mask = 0;
     barrier.image.dst_access_mask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    CmdPipelineBarrier(cmd_buffer, &barrier);
+    CmdPipelineBarrier(cmdBuffer, &barrier);
 
     VkBufferImageCopy region = {};
     region.bufferOffset = 0;
@@ -220,7 +220,7 @@ void RenderDevice::WriteTexture(Texture2D *texture, size_t size, void *pixels)
     region.imageExtent = { texture->width, texture->height, 1 };
 
     vkCmdCopyBufferToImage(
-        cmd_buffer,
+        cmdBuffer,
         buffer->vk_buffer,
         texture->image,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -232,9 +232,9 @@ void RenderDevice::WriteTexture(Texture2D *texture, size_t size, void *pixels)
     barrier.image.new_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     barrier.image.src_access_mask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.image.dst_access_mask = VK_ACCESS_SHADER_READ_BIT;
-    CmdPipelineBarrier(cmd_buffer, &barrier);
+    CmdPipelineBarrier(cmdBuffer, &barrier);
 
-    EndCommandBufferOneTime(cmd_buffer);
+    EndCommandBufferOneTime(cmdBuffer);
     DestroyBuffer(buffer);
 }
 
@@ -651,7 +651,7 @@ void RenderDevice::DestroyPipeline(Pipeline *p_pipeline)
     vkDestroyPipeline(device, p_pipeline->pipeline, allocation_callbacks);
 }
 
-void RenderDevice::BeginCommandBuffer(VkCommandBuffer cmd_buffer, VkCommandBufferUsageFlags usage)
+void RenderDevice::BeginCommandBuffer(VkCommandBuffer cmdBuffer, VkCommandBufferUsageFlags usage)
 {
     VkCommandBufferBeginInfo cmd_buffer_begin_info = {
             /* sType */ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -659,28 +659,28 @@ void RenderDevice::BeginCommandBuffer(VkCommandBuffer cmd_buffer, VkCommandBuffe
             /* flags */ usage,
             /* pInheritanceInfo */ nullptr,
     };
-    vkBeginCommandBuffer(cmd_buffer, &cmd_buffer_begin_info);
+    vkBeginCommandBuffer(cmdBuffer, &cmd_buffer_begin_info);
 }
 
-void RenderDevice::EndCommandBuffer(VkCommandBuffer cmd_buffer)
+void RenderDevice::EndCommandBuffer(VkCommandBuffer cmdBuffer)
 {
-    vkEndCommandBuffer(cmd_buffer);
+    vkEndCommandBuffer(cmdBuffer);
 }
 
 void RenderDevice::BeginCommandBufferOneTime(VkCommandBuffer *p_cmd_buffer)
 {
-    VkCommandBuffer cmd_buffer;
-    AllocateCommandBuffer(&cmd_buffer);
-    BeginCommandBuffer(cmd_buffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-    *p_cmd_buffer = cmd_buffer;
+    VkCommandBuffer cmdBuffer;
+    AllocateCommandBuffer(&cmdBuffer);
+    BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+    *p_cmd_buffer = cmdBuffer;
 }
 
-void RenderDevice::EndCommandBufferOneTime(VkCommandBuffer cmd_buffer)
+void RenderDevice::EndCommandBufferOneTime(VkCommandBuffer cmdBuffer)
 {
-    EndCommandBuffer(cmd_buffer);
+    EndCommandBuffer(cmdBuffer);
 
     VkQueue queue = rdc->GetQueue();
-    CmdBufferSubmit(cmd_buffer,
+    CmdBufferSubmit(cmdBuffer,
         0, VK_NULL_HANDLE,
         0, VK_NULL_HANDLE,
         VK_NULL_HANDLE,
@@ -688,10 +688,10 @@ void RenderDevice::EndCommandBufferOneTime(VkCommandBuffer cmd_buffer)
         VK_NULL_HANDLE);
     vkQueueWaitIdle(queue);
 
-    FreeCommandBuffer(cmd_buffer);
+    FreeCommandBuffer(cmdBuffer);
 }
 
-void RenderDevice::CmdBeginRenderPass(VkCommandBuffer cmd_buffer, VkRenderPass render_pass, uint32_t clear_value_count, VkClearValue *p_clear_values, VkFramebuffer framebuffer, VkRect2D *p_rect)
+void RenderDevice::CmdBeginRenderPass(VkCommandBuffer cmdBuffer, VkRenderPass render_pass, uint32_t clear_value_count, VkClearValue *p_clear_values, VkFramebuffer framebuffer, VkRect2D *p_rect)
 {
     VkRenderPassBeginInfo render_pass_begin_info = {
             /* sType */ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -703,10 +703,10 @@ void RenderDevice::CmdBeginRenderPass(VkCommandBuffer cmd_buffer, VkRenderPass r
             /* pClearValues */ p_clear_values,
     };
 
-    vkCmdBeginRenderPass(cmd_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(cmdBuffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void RenderDevice::CmdPipelineBarrier(VkCommandBuffer cmd_buffer, const PipelineMemoryBarrier *p_pipeline_memory_barrier)
+void RenderDevice::CmdPipelineBarrier(VkCommandBuffer cmdBuffer, const PipelineMemoryBarrier *p_pipeline_memory_barrier)
 {
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -724,7 +724,7 @@ void RenderDevice::CmdPipelineBarrier(VkCommandBuffer cmd_buffer, const Pipeline
     barrier.subresourceRange.layerCount = 1;
 
     vkCmdPipelineBarrier(
-            cmd_buffer,
+            cmdBuffer,
             VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
             VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
             0,
@@ -736,45 +736,45 @@ void RenderDevice::CmdPipelineBarrier(VkCommandBuffer cmd_buffer, const Pipeline
     p_pipeline_memory_barrier->image.texture->image_layout = barrier.newLayout;
 }
 
-void RenderDevice::CmdEndRenderPass(VkCommandBuffer cmd_buffer)
+void RenderDevice::CmdEndRenderPass(VkCommandBuffer cmdBuffer)
 {
-    vkCmdEndRenderPass(cmd_buffer);
+    vkCmdEndRenderPass(cmdBuffer);
 }
 
-void RenderDevice::CmdBindVertexBuffer(VkCommandBuffer cmd_buffer, RenderDevice::Buffer *p_buffer)
+void RenderDevice::CmdBindVertexBuffer(VkCommandBuffer cmdBuffer, RenderDevice::Buffer *p_buffer)
 {
     VkBuffer buffers[] = { p_buffer->vk_buffer };
     VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(cmd_buffer, 0, ARRAY_SIZE(buffers), buffers, offsets);
+    vkCmdBindVertexBuffers(cmdBuffer, 0, ARRAY_SIZE(buffers), buffers, offsets);
 }
 
-void RenderDevice::CmdBindIndexBuffer(VkCommandBuffer cmd_buffer, VkIndexType type, RenderDevice::Buffer *p_buffer)
+void RenderDevice::CmdBindIndexBuffer(VkCommandBuffer cmdBuffer, VkIndexType type, RenderDevice::Buffer *p_buffer)
 {
-    vkCmdBindIndexBuffer(cmd_buffer, p_buffer->vk_buffer, 0, type);
+    vkCmdBindIndexBuffer(cmdBuffer, p_buffer->vk_buffer, 0, type);
 }
 
-void RenderDevice::CmdDraw(VkCommandBuffer cmd_buffer, uint32_t vertex_count)
+void RenderDevice::CmdDraw(VkCommandBuffer cmdBuffer, uint32_t vertex_count)
 {
-    vkCmdDraw(cmd_buffer, vertex_count, 1, 0, 0);
+    vkCmdDraw(cmdBuffer, vertex_count, 1, 0, 0);
 }
 
-void RenderDevice::CmdDrawIndexed(VkCommandBuffer cmd_buffer, uint32_t index_count)
+void RenderDevice::CmdDrawIndexed(VkCommandBuffer cmdBuffer, uint32_t index_count)
 {
-    vkCmdDrawIndexed(cmd_buffer, index_count, 1, 0, 0, 0);
+    vkCmdDrawIndexed(cmdBuffer, index_count, 1, 0, 0, 0);
 }
 
-void RenderDevice::CmdBindPipeline(VkCommandBuffer cmd_buffer, Pipeline *p_pipeline)
+void RenderDevice::CmdBindPipeline(VkCommandBuffer cmdBuffer, Pipeline *p_pipeline)
 {
-    vkCmdBindPipeline(cmd_buffer, p_pipeline->bind_point, p_pipeline->pipeline);
+    vkCmdBindPipeline(cmdBuffer, p_pipeline->bind_point, p_pipeline->pipeline);
 }
 
-void RenderDevice::CmdBufferSubmit(VkCommandBuffer cmd_buffer, uint32_t wait_semaphore_count, VkSemaphore *p_wait_semaphore, uint32_t signal_semaphore_count, VkSemaphore *p_signal_semaphore, VkPipelineStageFlags *p_mask, VkQueue queue, VkFence fence)
+void RenderDevice::CmdBufferSubmit(VkCommandBuffer cmdBuffer, uint32_t wait_semaphore_count, VkSemaphore *p_wait_semaphore, uint32_t signal_semaphore_count, VkSemaphore *p_signal_semaphore, VkPipelineStageFlags *p_mask, VkQueue queue, VkFence fence)
 {
     VkResult U_ASSERT_ONLY err;
 
     uint32_t cmd_buffer_count;
-    VkCommandBuffer cmd_buffers[] = { cmd_buffer };
-    cmd_buffer_count = cmd_buffer ? ARRAY_SIZE(cmd_buffers) : 0;
+    VkCommandBuffer cmd_buffers[] = { cmdBuffer };
+    cmd_buffer_count = cmdBuffer ? ARRAY_SIZE(cmd_buffers) : 0;
 
     VkSubmitInfo submit_info = {
             /* sType */ VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -792,12 +792,12 @@ void RenderDevice::CmdBufferSubmit(VkCommandBuffer cmd_buffer, uint32_t wait_sem
     assert(!err);
 }
 
-void RenderDevice::CmdBindDescriptorSet(VkCommandBuffer cmd_buffer, Pipeline *p_pipeline, VkDescriptorSet descriptor)
+void RenderDevice::CmdBindDescriptorSet(VkCommandBuffer cmdBuffer, Pipeline *p_pipeline, VkDescriptorSet descriptor)
 {
-    vkCmdBindDescriptorSets(cmd_buffer, p_pipeline->bind_point, p_pipeline->layout, 0, 1, &descriptor, 0, VK_NULL_HANDLE);
+    vkCmdBindDescriptorSets(cmdBuffer, p_pipeline->bind_point, p_pipeline->layout, 0, 1, &descriptor, 0, VK_NULL_HANDLE);
 }
 
-void RenderDevice::CmdSetViewport(VkCommandBuffer cmd_buffer, uint32_t w, uint32_t h)
+void RenderDevice::CmdSetViewport(VkCommandBuffer cmdBuffer, uint32_t w, uint32_t h)
 {
     VkViewport viewport = {};
     viewport.x = 0;
@@ -806,17 +806,17 @@ void RenderDevice::CmdSetViewport(VkCommandBuffer cmd_buffer, uint32_t w, uint32
     viewport.height = h;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
+    vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
 
     VkRect2D scissor = {};
     scissor.offset = { 0, 0 };
     scissor.extent = { w, h };
-    vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
+    vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 }
 
-void RenderDevice::CmdPushConstant(VkCommandBuffer cmd_buffer, RenderDevice::Pipeline *pipeline, VkShaderStageFlags shader_stage_flags, uint32_t offset, uint32_t size, void *p_values)
+void RenderDevice::CmdPushConstant(VkCommandBuffer cmdBuffer, RenderDevice::Pipeline *pipeline, VkShaderStageFlags shader_stage_flags, uint32_t offset, uint32_t size, void *p_values)
 {
-    vkCmdPushConstants(cmd_buffer, pipeline->layout, shader_stage_flags, offset, size, p_values);
+    vkCmdPushConstants(cmdBuffer, pipeline->layout, shader_stage_flags, offset, size, p_values);
 }
 
 void RenderDevice::Present(VkQueue queue, VkSwapchainKHR swap_chain, uint32_t index, VkSemaphore wait_semaphore)

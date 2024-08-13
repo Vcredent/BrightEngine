@@ -15172,7 +15172,7 @@ static void ImGui::UpdateViewportsNewFrame()
             // Focus associated dear imgui window
             // - if focus didn't happen with a click within imgui boundaries, e.g. Clicking platform title bar. (#6299)
             // - if focus didn't happen because we destroyed another window (#6462)
-            // FIXME: perhaps 'FocusTopMostWindowUnderOne()' can handle the 'focused_window->Window != NULL' case as well.
+            // FIXME: perhaps 'FocusTopMostWindowUnderOne()' can handle the 'currentFocusedWindow->Window != NULL' case as well.
             const bool apply_imgui_focus_on_focused_viewport = !IsAnyMouseDown() && !prev_focused_has_been_destroyed;
             if (apply_imgui_focus_on_focused_viewport)
             {
