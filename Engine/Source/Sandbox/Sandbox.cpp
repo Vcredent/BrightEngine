@@ -32,8 +32,7 @@ int main()
     RenderDeviceContextWin32 *rdc = new RenderDeviceContextWin32(window);
     rdc->Initialize();
     RenderDevice *rd = rdc->CreateRenderDevice();
-    ScreenRender *screen = new ScreenRender(rd);
-    screen->Initialize(window);
+    ScreenRender *screen = new ScreenRender(rd, window);
     ImGuiNav::Initialize(screen);
 
     while (!window->IsClose()) {

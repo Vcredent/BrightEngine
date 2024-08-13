@@ -28,7 +28,7 @@
 
 class ScreenRender {
 public:
-    ScreenRender(RenderDevice *p_render_device);
+    ScreenRender(RenderDevice *vRenderDevice, Window *vWindow);
    ~ScreenRender();
 
     RenderDevice *GetRenderDevice() { return rd; }
@@ -37,12 +37,12 @@ public:
     Window *GetFocusedWindow() { return currentFocusedWindow; }
     void *GetNativeWindow() { return currentFocusedWindow->GetNativeWindow(); }
 
-    void Initialize(Window *v_focused_window);
-
     void CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer);
     void CmdEndScreenRendering(VkCommandBuffer cmdBuffer);
 
 private:
+    void _Initialize();
+
     struct SwapchainResource {
         VkCommandBuffer cmdBuffer;
         VkImage image;

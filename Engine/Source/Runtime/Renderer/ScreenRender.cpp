@@ -23,8 +23,8 @@
 #include "ScreenRender.h"
 #include <algorithm>
 
-ScreenRender::ScreenRender(RenderDevice *p_render_device)
-    : rd(p_render_device)
+ScreenRender::ScreenRender(RenderDevice *vRenderDevice, Window *vWindow)
+    : rd(vRenderDevice), currentFocusedWindow(vWindow)
 {
     vk_instance = rd->GetDeviceContext()->GetInstance();
     vk_physical_device = rd->GetDeviceContext()->GetPhysicalDevice();
@@ -32,6 +32,8 @@ ScreenRender::ScreenRender(RenderDevice *p_render_device)
     vk_graph_queue_family = rd->GetDeviceContext()->GetQueueFamily();
     vk_cmd_pool = rd->GetDeviceContext()->GetCommandPool();
     vk_graph_queue = rd->GetDeviceContext()->GetQueue();
+
+    _Initialize();
 }
 
 ScreenRender::~ScreenRender()
@@ -45,13 +47,42 @@ ScreenRender::~ScreenRender()
     free(window);
 }
 
-void ScreenRender::Initialize(Window *v_focused_window)
+void ScreenRender::CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer)
+{
+    _UpdateSwapChain();
+    vkAcquireNextImageKHR(vk_device, window->swap_chain, UINT64_MAX, window->image_available_semaphore, nullptr, &acquire_next_index);
+
+    VkCommandBuffer cmdBuffer;
+    cmdBuffer = window->swap_chain_resources[acquire_next_index].cmdBuffer;
+    rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
+
+    VkClearValue clear_color = {
+            0.10f, 0.10f, 0.10f, 1.0f
+    };
+
+    VkRect2D rect = {};
+    rect.extent = { window->width, window->height };
+    rd->CmdBeginRenderPass(cmdBuffer, window->render_pass, 1, &clear_color, window->swap_chain_resources[acquire_next_index].framebuffer, &rect);
+
+    *p_cmd_buffer = cmdBuffer;
+}
+
+void ScreenRender::CmdEndScreenRendering(VkCommandBuffer cmdBuffer)
+{
+    rd->CmdEndRenderPass(cmdBuffer);
+    rd->EndCommandBuffer(cmdBuffer);
+
+    VkPipelineStageFlags mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    rd->CmdBufferSubmit(cmdBuffer, 1, &window->image_available_semaphore, 1, &window->render_finished_semaphore, &mask, vk_graph_queue, VK_NULL_HANDLE);
+    rd->Present(vk_graph_queue, window->swap_chain, acquire_next_index, window->render_finished_semaphore);
+}
+
+void ScreenRender::_Initialize()
 {
     VkResult U_ASSERT_ONLY err;
 
     /* imalloc display window struct and set surface */
     window = (_Window *) imalloc(sizeof(_Window));
-    currentFocusedWindow = v_focused_window;
     currentFocusedWindow->CreateVulkanSurfaceKHR(vk_instance, allocation_callbacks, &window->vk_surface);
 
     VkSurfaceCapabilitiesKHR capabilities;
@@ -91,36 +122,6 @@ void ScreenRender::Initialize(Window *v_focused_window)
     assert(!err);
 
     _CreateSwapChain();
-}
-
-void ScreenRender::CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer)
-{
-    _UpdateSwapChain();
-    vkAcquireNextImageKHR(vk_device, window->swap_chain, UINT64_MAX, window->image_available_semaphore, nullptr, &acquire_next_index);
-
-    VkCommandBuffer cmdBuffer;
-    cmdBuffer = window->swap_chain_resources[acquire_next_index].cmdBuffer;
-    rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
-
-    VkClearValue clear_color = {
-            0.10f, 0.10f, 0.10f, 1.0f
-    };
-
-    VkRect2D rect = {};
-    rect.extent = { window->width, window->height };
-    rd->CmdBeginRenderPass(cmdBuffer, window->render_pass, 1, &clear_color, window->swap_chain_resources[acquire_next_index].framebuffer, &rect);
-
-    *p_cmd_buffer = cmdBuffer;
-}
-
-void ScreenRender::CmdEndScreenRendering(VkCommandBuffer cmdBuffer)
-{
-    rd->CmdEndRenderPass(cmdBuffer);
-    rd->EndCommandBuffer(cmdBuffer);
-
-    VkPipelineStageFlags mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    rd->CmdBufferSubmit(cmdBuffer, 1, &window->image_available_semaphore, 1, &window->render_finished_semaphore, &mask, vk_graph_queue, VK_NULL_HANDLE);
-    rd->Present(vk_graph_queue, window->swap_chain, acquire_next_index, window->render_finished_semaphore);
 }
 
 void ScreenRender::_CreateSwapChain()
