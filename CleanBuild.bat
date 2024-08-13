@@ -24,5 +24,6 @@
 
 rmdir /s /q .vs
 rmdir /s /q out
+rmdir /s /q build
 rmdir /s /q cmake-build-debug
 del   /s /q CMakeSettings.json
