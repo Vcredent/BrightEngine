@@ -18,17 +18,10 @@ Some links to learning resource:
 
 Environment:
 
-- `MinGW`
-- `CMake`
+- `MinGW/MSVC`
+- `CMake` 
+- `Vulkan`
 
 The IDE Notice:
 
-- `CLion`
-
-    if you use `CLion` IDE, you don't need to do anything, you can run the project directly after opening it.
-
-- `Visual Studio`
-
-    if you use `Visual Studio` IDE, i'm not sure you can run the project directly after opening it, You might need to configure some environments or libraries.
-    Because `Visual Studio` is not my primary development IDE. But in my machine i can directly after opening it and don't need configuration anything.
-
+  If you uses `CLion` or `Visual Studio` development, you can run the project directly after opening it and don't need to configuration anything.
