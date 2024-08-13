@@ -20,18 +20,16 @@
 # limitations under the License.                                           #
 #                                                                          #
 # ------------------------------------------------------------------------ #
-cmake_minimum_required(VERSION 3.26)
-project(TurbineEngine)
+set(PROGRAM_NAME "Sandbox")
 
-set(CMAKE_CXX_STANDARD 23)
+file(GLOB_RECURSE SOURCES
+  "*.cpp"
+)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  add_compile_options("/source-charset:utf-8")
-  add_compile_options("/execution-charset:utf-8")
-endif()
+add_executable(${PROGRAM_NAME}
+  ${SOURCES}
+)
 
-set(TURBINE_ROOT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-set(TURBINE_THIRDPARTY_DIRECTORY "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ThirdParty")
-
-add_subdirectory("Engine/Source/Runtime")
-add_subdirectory("Engine/Source/Sandbox")
+target_link_libraries(${PROGRAM_NAME} PRIVATE
+  "Runtime"
+)
