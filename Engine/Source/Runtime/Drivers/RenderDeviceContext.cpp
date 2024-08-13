@@ -57,7 +57,7 @@ RenderDeviceContext::RenderDeviceContext()
     VkResult U_ASSERT_ONLY err;
 
     // ************************************************* //
-    //                initialize instance                //
+    //                Initialize instance                //
     // ************************************************* //
     VkApplicationInfo application_info = {
             /* sType */ VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -97,10 +97,10 @@ RenderDeviceContext::RenderDeviceContext()
     err = vkCreateInstance(&instance_create_info, allocation_callbacks, &instance);
     assert(!err);
 
-    _load_proc_addr();
+    _LoadProcAddr();
 
     // ******************************************************** //
-    //                initialize debug messenger                //
+    //                Initialize debug messenger                //
     // ******************************************************** //
 #ifdef ENGINE_ENABLE_VULKAN_DEBUG_UTILS_EXT
     VkDebugUtilsMessengerCreateInfoEXT messenger_create_info = {};
@@ -118,7 +118,7 @@ RenderDeviceContext::RenderDeviceContext()
 #endif
 
     // ******************************************************** //
-    //                initialize physical device                //
+    //                Initialize physical device                //
     // ******************************************************** //
     uint32_t gpu_count;
     uint32_t gpu_number = 0;
@@ -133,26 +133,26 @@ RenderDeviceContext::RenderDeviceContext()
     assert(!err);
 
     for (int i = 0; i < gpu_count; i++) {
-        vkGetPhysicalDeviceProperties(physical_devices[i], &physical_device_properties);
-        if (physical_device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+        vkGetPhysicalDeviceProperties(physical_devices[i], &physicalDeviceProperties);
+        if (physicalDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             gpu_number = i;
             break;
         }
     }
 
-    physical_device = physical_devices[gpu_number];
+    physicalDevice = physical_devices[gpu_number];
     free(physical_devices);
 
-    vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
-    vkGetPhysicalDeviceFeatures(physical_device, &physical_device_features);
+    vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+    vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
 
-    max_msaa_sample_counts = find_max_msaa_sample_counts(physical_device_properties);
+    maxMSAASampleCounts = FindMaxMSAASampleCounts(physicalDeviceProperties);
 }
 
 RenderDeviceContext::~RenderDeviceContext()
 {
     vmaDestroyAllocator(allocator);
-    vkDestroyCommandPool(device, cmd_pool, allocation_callbacks);
+    vkDestroyCommandPool(device, commandPool, allocation_callbacks);
     vkDestroyDevice(device, allocation_callbacks);
 #ifdef ENGINE_ENABLE_VULKAN_DEBUG_UTILS_EXT
     fnDestroyDebugUtilsMessengerExt(instance, messenger, allocation_callbacks);
@@ -160,20 +160,20 @@ RenderDeviceContext::~RenderDeviceContext()
     vkDestroyInstance(instance, allocation_callbacks);
 }
 
-Error RenderDeviceContext::initialize()
+Error RenderDeviceContext::Initialize()
 {
-    _create_device();
-    _create_cmd_pool();
-    _create_vma_allocator();
+    _CreateDevice();
+    _CreateCommandPool();
+    _CreateVmaAllocator();
 
     return OK;
 }
 
-VkFormat RenderDeviceContext::find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+VkFormat RenderDeviceContext::FindSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
 {
     for (VkFormat format : candidates) {
         VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(physical_device, format, &props);
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
 
         if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
             return format;
@@ -185,14 +185,14 @@ VkFormat RenderDeviceContext::find_supported_format(const std::vector<VkFormat> 
 }
 
 
-void RenderDeviceContext::allocate_cmd_buffer(VkCommandBufferLevel level, VkCommandBuffer *p_cmd_buffer)
+void RenderDeviceContext::AllocateCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer *p_cmd_buffer)
 {
     VkResult U_ASSERT_ONLY err;
 
     VkCommandBufferAllocateInfo allocate_info = {
             /* sType */ VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
             /* pNext */ nextptr,
-            /* commandPool */ cmd_pool,
+            /* commandPool */ commandPool,
             /* level */ level,
             /* commandBufferCount */ 1
     };
@@ -201,42 +201,42 @@ void RenderDeviceContext::allocate_cmd_buffer(VkCommandBufferLevel level, VkComm
     assert(!err);
 }
 
-void RenderDeviceContext::free_cmd_buffer(VkCommandBuffer cmd_buffer)
+void RenderDeviceContext::FreeCommandBuffer(VkCommandBuffer cmd_buffer)
 {
-    vkFreeCommandBuffers(device, cmd_pool, 1, &cmd_buffer);
+    vkFreeCommandBuffers(device, commandPool, 1, &cmd_buffer);
 }
 
-void RenderDeviceContext::_initialize_window_arguments(VkSurfaceKHR surface)
+void RenderDeviceContext::_InitializeWindowArguments(VkSurfaceKHR surface)
 {
     VkResult U_ASSERT_ONLY err;
 
-    err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &capabilities);
+    err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities);
     assert(!err);
 
     /* pick surface format */
     uint32_t foramt_count = 0;
-    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &foramt_count, nullptr);
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &foramt_count, nullptr);
     assert(!err);
 
     VkSurfaceFormatKHR *surface_formats_khr = (VkSurfaceFormatKHR *) imalloc(sizeof(VkSurfaceFormatKHR) * foramt_count);
-    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &foramt_count, surface_formats_khr);
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &foramt_count, surface_formats_khr);
     assert(!err);
 
-    VkSurfaceFormatKHR surface_format = pick_surface_format(surface_formats_khr, foramt_count);
+    VkSurfaceFormatKHR surface_format = PickSurfaceFormat(surface_formats_khr, foramt_count);
     format = surface_format.format;
 
     /* add queue create info */
     uint32_t queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queue_family_count, nullptr);
     VkQueueFamilyProperties *queue_family_properties = (VkQueueFamilyProperties *) imalloc(sizeof(VkQueueFamilyProperties) * queue_family_count);
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, queue_family_properties);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queue_family_count, queue_family_properties);
 
     for (uint32_t i = 0; i < queue_family_count; i++) {
         VkQueueFamilyProperties properties = queue_family_properties[i];
         VkBool32 is_support_present = VK_FALSE;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &is_support_present);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &is_support_present);
         if ((properties.queueFlags & VK_QUEUE_GRAPHICS_BIT) && is_support_present) {
-            graph_queue_family = i;
+            queueFamily = i;
             break;
         }
     }
@@ -244,7 +244,7 @@ void RenderDeviceContext::_initialize_window_arguments(VkSurfaceKHR surface)
     free(queue_family_properties);
 }
 
-void RenderDeviceContext::_load_proc_addr()
+void RenderDeviceContext::_LoadProcAddr()
 {
 #if defined(ENGINE_ENABLE_VULKAN_DEBUG_UTILS_EXT)
     fnCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -252,7 +252,7 @@ void RenderDeviceContext::_load_proc_addr()
 #endif
 }
 
-void RenderDeviceContext::_create_device()
+void RenderDeviceContext::_CreateDevice()
 {
     VkResult U_ASSERT_ONLY err;
 
@@ -261,7 +261,7 @@ void RenderDeviceContext::_create_device()
             /* sType */ VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             /* pNext */ nextptr,
             /* flags */ no_flag_bits,
-            /* queueFamilyIndex */ graph_queue_family,
+            /* queueFamilyIndex */ queueFamily,
             /* queueCount */ 1,
             /* pQueuePriorities */ &priorities
     };
@@ -288,13 +288,13 @@ void RenderDeviceContext::_create_device()
             /* pEnabledFeatures */ &features,
     };
 
-    err = vkCreateDevice(physical_device, &device_create_info, allocation_callbacks, &device);
+    err = vkCreateDevice(physicalDevice, &device_create_info, allocation_callbacks, &device);
     assert(!err);
 
-    vkGetDeviceQueue(device, graph_queue_family, 0, &graph_queue);
+    vkGetDeviceQueue(device, queueFamily, 0, &queue);
 }
 
-void RenderDeviceContext::_create_cmd_pool()
+void RenderDeviceContext::_CreateCommandPool()
 {
     VkResult U_ASSERT_ONLY err;
 
@@ -302,20 +302,20 @@ void RenderDeviceContext::_create_cmd_pool()
             /* sType */ VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             /* pNext */ nextptr,
             /* flags */ VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-            /* queueFamilyIndex */ graph_queue_family
+            /* queueFamilyIndex */ queueFamily
     };
 
-    err = vkCreateCommandPool(device, &cmd_pool_create_info, allocation_callbacks, &cmd_pool);
+    err = vkCreateCommandPool(device, &cmd_pool_create_info, allocation_callbacks, &commandPool);
     assert(!err);
 }
 
-void RenderDeviceContext::_create_vma_allocator()
+void RenderDeviceContext::_CreateVmaAllocator()
 {
     VkResult U_ASSERT_ONLY err;
 
     VmaAllocatorCreateInfo vma_allocator_create_info = {};
     vma_allocator_create_info.instance = instance;
-    vma_allocator_create_info.physicalDevice = physical_device;
+    vma_allocator_create_info.physicalDevice = physicalDevice;
     vma_allocator_create_info.device = device;
 
     err = vmaCreateAllocator(&vma_allocator_create_info, &allocator);

@@ -25,9 +25,9 @@
 RenderDeviceContextWin32::RenderDeviceContextWin32(Window *window)
 {
     VkSurfaceKHR surface;
-    window->create_vulkan_surface(get_instance(), allocation_callbacks, &surface);
-    _initialize_window_arguments(surface);
-    vkDestroySurfaceKHR(get_instance(), surface, allocation_callbacks);
+    window->CreateVulkanSurfaceKHR(GetInstance(), allocation_callbacks, &surface);
+    _InitializeWindowArguments(surface);
+    vkDestroySurfaceKHR(GetInstance(), surface, allocation_callbacks);
 }
 
 RenderDeviceContextWin32::~RenderDeviceContextWin32()
@@ -35,12 +35,12 @@ RenderDeviceContextWin32::~RenderDeviceContextWin32()
     /* do nothing in here... */
 }
 
-RenderDevice *RenderDeviceContextWin32::load_render_device()
+RenderDevice *RenderDeviceContextWin32::CreateRenderDevice()
 {
     return memnew(RenderDevice, this);
 }
 
-void RenderDeviceContextWin32::destroy_render_device(RenderDevice *p_render_device)
+void RenderDeviceContextWin32::DestroyRenderDevice(RenderDevice *p_render_device)
 {
     memdel(p_render_device);
 }

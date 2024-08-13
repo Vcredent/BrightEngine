@@ -32,8 +32,8 @@ public:
     RenderDeviceContextWin32(Window *window);
     ~RenderDeviceContextWin32();
 
-    RenderDevice *load_render_device();
-    void destroy_render_device(RenderDevice *p_render_device);
+    RenderDevice *CreateRenderDevice();
+    void DestroyRenderDevice(RenderDevice *p_render_device);
 };
 
 #endif /* _RENDERING_CONTEXT_DRIVER_VULKAN_WIN32_H */

@@ -28,14 +28,14 @@ int main()
 {
     Window *window = new Window("TurbineEngine", 1080, 1060);
     RenderDeviceContextWin32 *rdc = new RenderDeviceContextWin32(window);
-    rdc->initialize();
-    RenderDevice *rd = rdc->load_render_device();
-    
-    while (!window->is_close()) {
-        window->poll_events();
+    rdc->Initialize();
+    RenderDevice *rd = rdc->CreateRenderDevice();
+
+    while (!window->IsClose()) {
+        window->PollEvents();
     }
 
-    rdc->destroy_render_device(rd);
+    rdc->DestroyRenderDevice(rd);
     delete rdc;
     delete window;
 

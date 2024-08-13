@@ -28,7 +28,7 @@
 #include <Turbine/IOUtils.h>
 
 // pick surface format
-static VkSurfaceFormatKHR pick_surface_format(const VkSurfaceFormatKHR *surface_formats, uint32_t count)
+static VkSurfaceFormatKHR PickSurfaceFormat(const VkSurfaceFormatKHR *surface_formats, uint32_t count)
 {
     VkFormat format;
     for (uint32_t i = 0; i < count; i++) {
@@ -45,7 +45,7 @@ static VkSurfaceFormatKHR pick_surface_format(const VkSurfaceFormatKHR *surface_
     return surface_formats[0];
 }
 
-static VkSampleCountFlagBits find_max_msaa_sample_counts(VkPhysicalDeviceProperties properties)
+static VkSampleCountFlagBits FindMaxMSAASampleCounts(VkPhysicalDeviceProperties properties)
 {
     VkSampleCountFlags framebuffer_color_sample_count;
     VkSampleCountFlags framebuffer_depth_sample_count;
@@ -78,7 +78,7 @@ static VkSampleCountFlagBits find_max_msaa_sample_counts(VkPhysicalDevicePropert
 }
 
 // load shader module form .spv file content.
-static VkShaderModule load_shader_module(VkDevice device, const char *name, const char *stage)
+static VkShaderModule LoadShaderModule(VkDevice device, const char *name, const char *stage)
 {
     char *buf;
     size_t size;
@@ -87,7 +87,7 @@ static VkShaderModule load_shader_module(VkDevice device, const char *name, cons
     char path[255];
     snprintf(path, sizeof(path), _CURDIR("shader/%s.%s.spv"), name, stage);
 
-    buf = io_read_bytecode(path, &size);
+    buf = IOUtils::ReadByteCode(path, &size);
 
     VkShaderModuleCreateInfo shader_module_create_info = {
             /* sType */ VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
@@ -101,7 +101,7 @@ static VkShaderModule load_shader_module(VkDevice device, const char *name, cons
     err = vkCreateShaderModule(device, &shader_module_create_info, allocation_callbacks, &shader_module);
     assert(!err);
 
-    io_free_buf(buf);
+    IOUtils::FreeBuffer(buf);
 
     return shader_module;
 }

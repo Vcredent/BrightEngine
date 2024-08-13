@@ -50,24 +50,24 @@ public:
     RenderDeviceContext();
     ~RenderDeviceContext();
 
-    Error initialize();
-    VkInstance get_instance() { return instance; }
-    VkPhysicalDevice get_physical_device() { return physical_device; }
-    const char *get_device_name() { return physical_device_properties.deviceName; }
-    VkDevice get_device() { return device; }
-    VmaAllocator get_allocator() { return allocator; }
-    uint32_t get_graph_queue_family() { return graph_queue_family; }
-    VkQueue get_graph_queue() { return graph_queue; };
-    VkCommandPool get_cmd_pool() { return cmd_pool; }
-    VkFormat get_window_format() { return format; }
-    VkFormat find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-    VkSampleCountFlagBits get_max_msaa_sample_counts() { return max_msaa_sample_counts; }
+    Error Initialize();
+    VkInstance GetInstance() { return instance; }
+    VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+    const char *GetDeviceName() { return physicalDeviceProperties.deviceName; }
+    VkDevice GetDevice() { return device; }
+    VmaAllocator GetAllocator() { return allocator; }
+    uint32_t GetQueueFamily() { return queueFamily; }
+    VkQueue GetQueue() { return queue; };
+    VkCommandPool GetCommandPool() { return commandPool; }
+    VkFormat GetWindowFormat() { return format; }
+    VkFormat FindSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    VkSampleCountFlagBits GetMaxMSAASampleCounts() { return maxMSAASampleCounts; }
 
-    void allocate_cmd_buffer(VkCommandBufferLevel level, VkCommandBuffer *p_cmd_buffer);
-    void free_cmd_buffer(VkCommandBuffer cmd_buffer);
+    void AllocateCommandBuffer(VkCommandBufferLevel level, VkCommandBuffer *p_cmd_buffer);
+    void FreeCommandBuffer(VkCommandBuffer cmd_buffer);
 
 protected:
-    void _initialize_window_arguments(VkSurfaceKHR surface);
+    void _InitializeWindowArguments(VkSurfaceKHR surface);
 
 private:
 #ifdef ENGINE_ENABLE_VULKAN_DEBUG_UTILS_EXT
@@ -75,26 +75,26 @@ private:
         PFN_vkDestroyDebugUtilsMessengerEXT fnDestroyDebugUtilsMessengerExt = VK_NULL_HANDLE;
 #endif
 
-    void _load_proc_addr();
-    void _create_device();
-    void _create_cmd_pool();
-    void _create_vma_allocator();
+    void _LoadProcAddr();
+    void _CreateDevice();
+    void _CreateCommandPool();
+    void _CreateVmaAllocator();
 
     VkInstance instance = VK_NULL_HANDLE;
 #ifdef ENGINE_ENABLE_VULKAN_DEBUG_UTILS_EXT
     VkDebugUtilsMessengerEXT messenger = VK_NULL_HANDLE;
 #endif
-    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
-    VkPhysicalDeviceProperties physical_device_properties;
-    VkPhysicalDeviceFeatures physical_device_features;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    VkPhysicalDeviceFeatures physicalDeviceFeatures;
     VkDevice device = VK_NULL_HANDLE;
-    uint32_t graph_queue_family;
-    VkQueue graph_queue = VK_NULL_HANDLE;
-    VkCommandPool cmd_pool = VK_NULL_HANDLE;
+    uint32_t queueFamily;
+    VkQueue queue = VK_NULL_HANDLE;
+    VkCommandPool commandPool = VK_NULL_HANDLE;
     VmaAllocator allocator = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR capabilities;
     VkFormat format;
-    VkSampleCountFlagBits max_msaa_sample_counts = VK_SAMPLE_COUNT_1_BIT;
+    VkSampleCountFlagBits maxMSAASampleCounts = VK_SAMPLE_COUNT_1_BIT;
 };
 
 #endif /* _RENDERING_CONTEXT_DRIVER_VULKAN_H */

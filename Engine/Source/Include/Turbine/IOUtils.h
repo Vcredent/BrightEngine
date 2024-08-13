@@ -26,26 +26,29 @@
 #include <fstream>
 #include <Turbine/Mem.h>
 
-static char *io_read_bytecode(const char *path, size_t *size)
+namespace IOUtils
 {
-    std::ifstream file(path, std::ios::ate | std::ios::binary);
-    if (!file.is_open())
-        throw std::runtime_error("error open file failed!");
+    static char *ReadByteCode(const char *path, size_t *size)
+    {
+        std::ifstream file(path, std::ios::ate | std::ios::binary);
+        if (!file.is_open())
+            throw std::runtime_error("error open file failed!");
 
-    *size = file.tellg();
-    file.seekg(0);
+        *size = file.tellg();
+        file.seekg(0);
 
-    /* malloc buffer */
-    char *buf = (char *) imalloc(*size);
-    file.read(buf, *size);
-    file.close();
+        /* malloc buffer */
+        char *buf = (char *) imalloc(*size);
+        file.read(buf, *size);
+        file.close();
 
-    return buf;
-}
+        return buf;
+    }
 
-static void io_free_buf(char *buf)
-{
-    free(buf);
+    static void FreeBuffer(char *buf)
+    {
+        free(buf);
+    }
 }
 
 #endif /* _IOUTILS_H_ */
