@@ -1,6 +1,6 @@
 # Turbine Engine
 
-Welcome to BrightEngine!
+Welcome to TurbineEngine!
 
 This game engine project is a learning experience for me and for everyone. 
 You can clone this repository to your machine. Hope you enjoy learning.
