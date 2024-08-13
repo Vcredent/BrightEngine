@@ -16,7 +16,9 @@ Some links to learning resource:
 
 ## Build environment requirements
 
-- `MinGW` or other toolchains
+Environment:
+
+- `MinGW`
 - `CMake`
 
 The IDE Notice:
@@ -27,6 +29,6 @@ The IDE Notice:
 
 - `Visual Studio`
 
-    if you use `Visual Studio` IDE, i'm not sure if you can run the project directly after opening it, You might need to configure some environments or libraries.
-    but in my machine i can directly after opening it and don't need configuration for anything.
+    if you use `Visual Studio` IDE, i'm not sure you can run the project directly after opening it, You might need to configure some environments or libraries.
+    Because `Visual Studio` is not my primary development IDE, But in my machine i can directly after opening it and don't need configuration.
 
