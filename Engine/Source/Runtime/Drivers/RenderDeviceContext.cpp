@@ -160,15 +160,6 @@ RenderDeviceContext::~RenderDeviceContext()
     vkDestroyInstance(instance, allocation_callbacks);
 }
 
-Error RenderDeviceContext::Initialize()
-{
-    _CreateDevice();
-    _CreateCommandPool();
-    _CreateVmaAllocator();
-
-    return OK;
-}
-
 VkFormat RenderDeviceContext::FindSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
 {
     for (VkFormat format : candidates) {
@@ -204,6 +195,15 @@ void RenderDeviceContext::AllocateCommandBuffer(VkCommandBufferLevel level, VkCo
 void RenderDeviceContext::FreeCommandBuffer(VkCommandBuffer cmdBuffer)
 {
     vkFreeCommandBuffers(device, commandPool, 1, &cmdBuffer);
+}
+
+Error RenderDeviceContext::_Initialize()
+{
+    _CreateDevice();
+    _CreateCommandPool();
+    _CreateVmaAllocator();
+
+    return OK;
 }
 
 void RenderDeviceContext::_InitializeWindowArguments(VkSurfaceKHR surface)

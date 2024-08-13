@@ -30,7 +30,6 @@ int main()
 {
     Window *window = new Window("TurbineEngine", 1080, 1060);
     RenderDeviceContextWin32 *rdc = new RenderDeviceContextWin32(window);
-    rdc->Initialize();
     RenderDevice *rd = rdc->CreateRenderDevice();
     ScreenRender *screen = new ScreenRender(rd, window);
     ImGuiNav::Initialize(screen);

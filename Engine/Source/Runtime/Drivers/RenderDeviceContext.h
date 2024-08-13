@@ -50,7 +50,6 @@ public:
     RenderDeviceContext();
     ~RenderDeviceContext();
 
-    Error Initialize();
     VkInstance GetInstance() { return instance; }
     VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
     const char *GetDeviceName() { return physicalDeviceProperties.deviceName; }
@@ -67,6 +66,7 @@ public:
     void FreeCommandBuffer(VkCommandBuffer cmdBuffer);
 
 protected:
+    Error _Initialize();
     void _InitializeWindowArguments(VkSurfaceKHR surface);
 
 private:
