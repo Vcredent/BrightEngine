@@ -21,9 +21,10 @@
 /* |                                                                          | */
 /* \ ------------------------------------------------------------------------ / */
 #include <iostream>
+#include <Runtime/Drivers/RenderDevice.h>
 
 int main()
 {
-    std::cout << "Hello World" << std::endl;
+    std::cout << "x + y = " << add(10, 10) << std::endl;
     return 0;
 }
