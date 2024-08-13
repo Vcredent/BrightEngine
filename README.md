@@ -30,5 +30,5 @@ The IDE Notice:
 - `Visual Studio`
 
     if you use `Visual Studio` IDE, i'm not sure you can run the project directly after opening it, You might need to configure some environments or libraries.
-    Because `Visual Studio` is not my primary development IDE, But in my machine i can directly after opening it and don't need configuration.
+    Because `Visual Studio` is not my primary development IDE. But in my machine i can directly after opening it and don't need configuration anything.
 
