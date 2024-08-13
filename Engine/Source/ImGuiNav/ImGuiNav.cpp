@@ -136,7 +136,7 @@ void _CheckDraggingCursor()
 
 namespace ImGuiNav {
 
-    void Initialize(ScreenRender *screen)
+    void Initialize(Displayer *displayer)
       {
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -168,10 +168,10 @@ namespace ImGuiNav {
         _DarkNavUITheme();
 
         // Setup Platform/Renderer backends
-          _window = (GLFWwindow *) screen->GetNativeWindow();
+          _window = (GLFWwindow *) displayer->GetNativeWindow();
           ImGui_ImplGlfw_InitForVulkan(_window, true);
 
-        RenderDevice *rd = screen->GetRenderDevice();
+        RenderDevice *rd = displayer->GetRenderDevice();
         RenderDeviceContext *rdc = rd->GetDeviceContext();
 
         ImGui_ImplVulkan_InitInfo init_info = {};
@@ -182,10 +182,10 @@ namespace ImGuiNav {
         init_info.Queue = rdc->GetQueue();
         init_info.PipelineCache = VK_NULL_HANDLE;
         init_info.DescriptorPool = rd->GetDescriptorPool();
-        init_info.RenderPass = screen->GetRenderPass();
+        init_info.RenderPass = displayer->GetRenderPass();
         init_info.Subpass = 0;
-        init_info.MinImageCount = screen->GetImageBufferCount();
-        init_info.ImageCount = screen->GetImageBufferCount();
+        init_info.MinImageCount = displayer->GetImageBufferCount();
+        init_info.ImageCount = displayer->GetImageBufferCount();
         init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         ImGui_ImplVulkan_Init(&init_info);
       }

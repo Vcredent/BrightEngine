@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* ScreenRender.cpp                                                         */
+/* Displayer.cpp                                                            */
 /* ------------------------------------------------------------------------ */
 /*                        This file is part of:                             */
 /*                            BRIGHT ENGINE                                 */
@@ -20,40 +20,40 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
-#include "ScreenRender.h"
+#include "Displayer.h"
 #include <algorithm>
 
-ScreenRender::ScreenRender(RenderDevice *vRenderDevice, Window *vWindow)
+Displayer::Displayer(RenderDevice *vRenderDevice, Window *vWindow)
     : rd(vRenderDevice), currentFocusedWindow(vWindow)
 {
-    vk_instance = rd->GetDeviceContext()->GetInstance();
-    vk_physical_device = rd->GetDeviceContext()->GetPhysicalDevice();
-    vk_device = rd->GetDeviceContext()->GetDevice();
-    vk_graph_queue_family = rd->GetDeviceContext()->GetQueueFamily();
-    vk_cmd_pool = rd->GetDeviceContext()->GetCommandPool();
-    vk_graph_queue = rd->GetDeviceContext()->GetQueue();
+    instance = rd->GetDeviceContext()->GetInstance();
+    physicalDevice = rd->GetDeviceContext()->GetPhysicalDevice();
+    device = rd->GetDeviceContext()->GetDevice();
+    queueFamily = rd->GetDeviceContext()->GetQueueFamily();
+    commandPool = rd->GetDeviceContext()->GetCommandPool();
+    queue = rd->GetDeviceContext()->GetQueue();
 
     _Initialize();
 }
 
-ScreenRender::~ScreenRender()
+Displayer::~Displayer()
 {
-    vkDestroySemaphore(vk_device, window->image_available_semaphore, allocation_callbacks);
-    vkDestroySemaphore(vk_device, window->render_finished_semaphore, allocation_callbacks);
-    vkDestroySwapchainKHR(vk_device, window->swap_chain, allocation_callbacks);
-    vkDestroyRenderPass(vk_device, window->render_pass, allocation_callbacks);
+    vkDestroySemaphore(device, displayWindow->imageAvailableSemaphore, allocation_callbacks);
+    vkDestroySemaphore(device, displayWindow->renderFinishedSemaphore, allocation_callbacks);
+    vkDestroySwapchainKHR(device, displayWindow->swapchain, allocation_callbacks);
+    vkDestroyRenderPass(device, displayWindow->renderPass, allocation_callbacks);
     _CleanUpSwapChain();
-    vkDestroySurfaceKHR(vk_instance, window->vk_surface, allocation_callbacks);
-    free(window);
+    vkDestroySurfaceKHR(instance, displayWindow->surface, allocation_callbacks);
+    free(displayWindow);
 }
 
-void ScreenRender::CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer)
+void Displayer::CmdBeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
 {
     _UpdateSwapChain();
-    vkAcquireNextImageKHR(vk_device, window->swap_chain, UINT64_MAX, window->image_available_semaphore, nullptr, &acquire_next_index);
+    vkAcquireNextImageKHR(device, displayWindow->swapchain, UINT64_MAX, displayWindow->imageAvailableSemaphore, nullptr, &acquireNextIndex);
 
     VkCommandBuffer cmdBuffer;
-    cmdBuffer = window->swap_chain_resources[acquire_next_index].cmdBuffer;
+    cmdBuffer = displayWindow->swapchainResources[acquireNextIndex].cmdBuffer;
     rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
 
     VkClearValue clear_color = {
@@ -61,86 +61,86 @@ void ScreenRender::CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer)
     };
 
     VkRect2D rect = {};
-    rect.extent = { window->width, window->height };
-    rd->CmdBeginRenderPass(cmdBuffer, window->render_pass, 1, &clear_color, window->swap_chain_resources[acquire_next_index].framebuffer, &rect);
+    rect.extent = { displayWindow->width, displayWindow->height };
+    rd->CmdBeginRenderPass(cmdBuffer, displayWindow->renderPass, 1, &clear_color, displayWindow->swapchainResources[acquireNextIndex].framebuffer, &rect);
 
     *p_cmd_buffer = cmdBuffer;
 }
 
-void ScreenRender::CmdEndScreenRendering(VkCommandBuffer cmdBuffer)
+void Displayer::CmdEndDisplayRendering(VkCommandBuffer cmdBuffer)
 {
     rd->CmdEndRenderPass(cmdBuffer);
     rd->EndCommandBuffer(cmdBuffer);
 
     VkPipelineStageFlags mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    rd->CmdBufferSubmit(cmdBuffer, 1, &window->image_available_semaphore, 1, &window->render_finished_semaphore, &mask, vk_graph_queue, VK_NULL_HANDLE);
-    rd->Present(vk_graph_queue, window->swap_chain, acquire_next_index, window->render_finished_semaphore);
+    rd->CmdBufferSubmit(cmdBuffer, 1, &displayWindow->imageAvailableSemaphore, 1, &displayWindow->renderFinishedSemaphore, &mask, queue, VK_NULL_HANDLE);
+    rd->Present(queue, displayWindow->swapchain, acquireNextIndex, displayWindow->renderFinishedSemaphore);
 }
 
-void ScreenRender::_Initialize()
+void Displayer::_Initialize()
 {
     VkResult U_ASSERT_ONLY err;
 
-    /* imalloc display window struct and set surface */
-    window = (_Window *) imalloc(sizeof(_Window));
-    currentFocusedWindow->CreateVulkanSurfaceKHR(vk_instance, allocation_callbacks, &window->vk_surface);
+    /* imalloc display displayWindow struct and set surface */
+    displayWindow = (DisplayWindow *) imalloc(sizeof(DisplayWindow));
+    currentFocusedWindow->CreateVulkanSurfaceKHR(instance, allocation_callbacks, &displayWindow->surface);
 
     VkSurfaceCapabilitiesKHR capabilities;
-    err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physical_device, window->vk_surface, &capabilities);
+    err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, displayWindow->surface, &capabilities);
     assert(!err);
 
     /* pick surface format */
     uint32_t format_count = 0;
-    err = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_physical_device, window->vk_surface, &format_count, nullptr);
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, displayWindow->surface, &format_count, nullptr);
     assert(!err);
 
     VkSurfaceFormatKHR *surface_formats_khr = (VkSurfaceFormatKHR *) imalloc(sizeof(VkSurfaceFormatKHR) * format_count);
-    err = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_physical_device, window->vk_surface, &format_count, surface_formats_khr);
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, displayWindow->surface, &format_count, surface_formats_khr);
     assert(!err);
 
     VkSurfaceFormatKHR surface_format = PickSurfaceFormat(surface_formats_khr, format_count);
-    window->format = surface_format.format;
-    window->color_space = surface_format.colorSpace;
+    displayWindow->format = surface_format.format;
+    displayWindow->colorSpace = surface_format.colorSpace;
 
     free(surface_formats_khr);
 
     /* image buffer count */
     uint32_t desired_buffer_count = 3;
     desired_buffer_count = std::clamp(desired_buffer_count, capabilities.minImageCount, capabilities.maxImageCount);
-    window->image_buffer_count = desired_buffer_count;
+    displayWindow->imageBufferCount = desired_buffer_count;
 
-    window->composite_alpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    window->present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    displayWindow->compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    displayWindow->presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     VkSemaphoreCreateInfo semaphore_create_info = {};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    err = vkCreateSemaphore(vk_device, &semaphore_create_info, allocation_callbacks, &window->image_available_semaphore);
+    err = vkCreateSemaphore(device, &semaphore_create_info, allocation_callbacks, &displayWindow->imageAvailableSemaphore);
     assert(!err);
 
-    err = vkCreateSemaphore(vk_device, &semaphore_create_info, allocation_callbacks, &window->render_finished_semaphore);
+    err = vkCreateSemaphore(device, &semaphore_create_info, allocation_callbacks, &displayWindow->renderFinishedSemaphore);
     assert(!err);
 
     _CreateSwapChain();
 }
 
-void ScreenRender::_CreateSwapChain()
+void Displayer::_CreateSwapChain()
 {
     VkResult U_ASSERT_ONLY err;
-    VkSwapchainKHR old_swap_chain;
+    VkSwapchainKHR oldSwappchain;
 
-    old_swap_chain = window->swap_chain;
+    oldSwappchain = displayWindow->swapchain;
 
     VkSurfaceCapabilitiesKHR capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physical_device, window->vk_surface, &capabilities);
-    window->width = capabilities.currentExtent.width;
-    window->height = capabilities.currentExtent.height;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, displayWindow->surface, &capabilities);
+    displayWindow->width = capabilities.currentExtent.width;
+    displayWindow->height = capabilities.currentExtent.height;
 
-    if (!old_swap_chain) {
+    if (!oldSwappchain) {
         // attachment
         VkAttachmentDescription color_attachment = {
                 /* flags */ no_flag_bits,
-                /* format */ window->format,
+                /* format */ displayWindow->format,
                 /* samples */ VK_SAMPLE_COUNT_1_BIT,
                 /* loadOp */VK_ATTACHMENT_LOAD_OP_CLEAR,
                 /* storeOp */ VK_ATTACHMENT_STORE_OP_STORE,
@@ -177,66 +177,66 @@ void ScreenRender::_CreateSwapChain()
         render_pass_create_info.dependencyCount = 1;
         render_pass_create_info.pDependencies = &subpass_dependency;
 
-        err = vkCreateRenderPass(vk_device, &render_pass_create_info, allocation_callbacks, &window->render_pass);
+        err = vkCreateRenderPass(device, &render_pass_create_info, allocation_callbacks, &displayWindow->renderPass);
         assert(!err);
     }
 
     /* create swap chain */
-    VkSwapchainCreateInfoKHR swap_chain_create_info = {
+    VkSwapchainCreateInfoKHR swappchainCreateInfo = {
             /* sType */ VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
             /* pNext */ nextptr,
             /* flags */ no_flag_bits,
-            /* surface */ window->vk_surface,
-            /* minImageCount */ window->image_buffer_count,
-            /* imageFormat */ window->format,
-            /* imageColorSpace */ window->color_space,
+            /* surface */ displayWindow->surface,
+            /* minImageCount */ displayWindow->imageBufferCount,
+            /* imageFormat */ displayWindow->format,
+            /* imageColorSpace */ displayWindow->colorSpace,
             /* imageExtent */ capabilities.currentExtent,
             /* imageArrayLayers */ 1,
             /* imageUsage */ VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
             /* imageSharingMode */ VK_SHARING_MODE_EXCLUSIVE,
             /* queueFamilyIndexCount */ 1,
-            /* pQueueFamilyIndices */ &vk_graph_queue_family,
+            /* pQueueFamilyIndices */ &queueFamily,
             /* preTransform */ capabilities.currentTransform,
-            /* compositeAlpha */ window->composite_alpha,
-            /* presentMode */ window->present_mode,
+            /* compositeAlpha */ displayWindow->compositeAlpha,
+            /* presentMode */ displayWindow->presentMode,
             /* clipped */ VK_TRUE,
-            /* oldSwapchain */ old_swap_chain,
+            /* oldSwapchain */ oldSwappchain,
     };
 
-    err = vkCreateSwapchainKHR(vk_device, &swap_chain_create_info, allocation_callbacks, &window->swap_chain);
+    err = vkCreateSwapchainKHR(device, &swappchainCreateInfo, allocation_callbacks, &displayWindow->swapchain);
     assert(!err);
 
-    if (old_swap_chain)
-        vkDestroySwapchainKHR(vk_device, old_swap_chain, allocation_callbacks);
+    if (oldSwappchain)
+        vkDestroySwapchainKHR(device, oldSwappchain, allocation_callbacks);
 
     /* initialize swap chain resources */
-    window->swap_chain_resources = (SwapchainResource *) imalloc(sizeof(SwapchainResource) * window->image_buffer_count);
+    displayWindow->swapchainResources = (SwapchainResource *) imalloc(sizeof(SwapchainResource) * displayWindow->imageBufferCount);
 
     std::vector<VkImage> swap_chain_images;
-    swap_chain_images.resize(window->image_buffer_count);
-    err = vkGetSwapchainImagesKHR(vk_device, window->swap_chain, &window->image_buffer_count, std::data(swap_chain_images));
+    swap_chain_images.resize(displayWindow->imageBufferCount);
+    err = vkGetSwapchainImagesKHR(device, displayWindow->swapchain, &displayWindow->imageBufferCount, std::data(swap_chain_images));
     assert(!err);
 
-    for (uint32_t i = 0; i < window->image_buffer_count; i++) {
-        window->swap_chain_resources[i].image = swap_chain_images[i];
+    for (uint32_t i = 0; i < displayWindow->imageBufferCount; i++) {
+        displayWindow->swapchainResources[i].image = swap_chain_images[i];
 
-        VkCommandBufferAllocateInfo cmd_allocate_info = {
+        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {
                 /* sType */ VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
                 /* pNext */ nextptr,
-                /* commandPool */ vk_cmd_pool,
+                /* commandPool */ commandPool,
                 /* level */ VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                 /* commandBufferCount */ 1
         };
 
-        vkAllocateCommandBuffers(vk_device, &cmd_allocate_info, &(window->swap_chain_resources[i].cmdBuffer));
+        vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &(displayWindow->swapchainResources[i].cmdBuffer));
 
-        VkImageViewCreateInfo image_view_create_info = {
+        VkImageViewCreateInfo imageViewCreateInfo = {
                 /* sType */ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                 /* pNext */ nextptr,
                 /* flags */ no_flag_bits,
-                /* image */ window->swap_chain_resources[i].image,
+                /* image */ displayWindow->swapchainResources[i].image,
                 /* viewType */ VK_IMAGE_VIEW_TYPE_2D,
-                /* format */ window->format,
+                /* format */ displayWindow->format,
                 /* components */
                     {
                         .r = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -254,48 +254,48 @@ void ScreenRender::_CreateSwapChain()
                     },
         };
 
-        err = vkCreateImageView(vk_device, &image_view_create_info, allocation_callbacks, &(window->swap_chain_resources[i].image_view));
+        err = vkCreateImageView(device, &imageViewCreateInfo, allocation_callbacks, &(displayWindow->swapchainResources[i].image_view));
         assert(!err);
 
-        VkImageView framebuffer_attachments[] = { window->swap_chain_resources[i].image_view };
+        VkImageView framebuffer_attachments[] = { displayWindow->swapchainResources[i].image_view };
 
         VkFramebufferCreateInfo framebuffer_create_info = {
                 /* sType */ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
                 /* pNext */ nextptr,
                 /* flags */ no_flag_bits,
-                /* renderPass */ window->render_pass,
+                /* renderPass */ displayWindow->renderPass,
                 /* attachmentCount */ ARRAY_SIZE(framebuffer_attachments),
                 /* pAttachments */ framebuffer_attachments,
-                /* width */ window->width,
-                /* height */ window->height,
+                /* width */ displayWindow->width,
+                /* height */ displayWindow->height,
                 /* layers */ 1,
         };
 
-        err = vkCreateFramebuffer(vk_device, &framebuffer_create_info, allocation_callbacks, &(window->swap_chain_resources[i].framebuffer));
+        err = vkCreateFramebuffer(device, &framebuffer_create_info, allocation_callbacks, &(displayWindow->swapchainResources[i].framebuffer));
         assert(!err);
     }
 }
 
-void ScreenRender::_CleanUpSwapChain()
+void Displayer::_CleanUpSwapChain()
 {
-    for (uint32_t i = 0; i < window->image_buffer_count; i++) {
-        vkFreeCommandBuffers(vk_device, vk_cmd_pool, 1, &window->swap_chain_resources[i].cmdBuffer);
-        vkDestroyFramebuffer(vk_device, window->swap_chain_resources[i].framebuffer, allocation_callbacks);
-        vkDestroyImageView(vk_device, window->swap_chain_resources[i].image_view, allocation_callbacks);
+    for (uint32_t i = 0; i < displayWindow->imageBufferCount; i++) {
+        vkFreeCommandBuffers(device, commandPool, 1, &displayWindow->swapchainResources[i].cmdBuffer);
+        vkDestroyFramebuffer(device, displayWindow->swapchainResources[i].framebuffer, allocation_callbacks);
+        vkDestroyImageView(device, displayWindow->swapchainResources[i].image_view, allocation_callbacks);
     }
 
-    free(window->swap_chain_resources);
+    free(displayWindow->swapchainResources);
 }
 
-void ScreenRender::_UpdateSwapChain()
+void Displayer::_UpdateSwapChain()
 {
     VkSurfaceCapabilitiesKHR capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physical_device, window->vk_surface, &capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, displayWindow->surface, &capabilities);
     VkExtent2D extent = capabilities.currentExtent;
 
     /* is update */
-    if ((extent.width != window->width || extent.height != window->height) && (extent.width != 0 || extent.height != 0)) {
-        vkDeviceWaitIdle(vk_device);
+    if ((extent.width != displayWindow->width || extent.height != displayWindow->height) && (extent.width != 0 || extent.height != 0)) {
+        vkDeviceWaitIdle(device);
         _CleanUpSwapChain();
         _CreateSwapChain();
     }

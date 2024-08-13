@@ -24,13 +24,13 @@
 #define _PILOTUI_H_
 
 #include "imgui/imgui.h"
-#include <Runtime/Renderer/ScreenRender.h>
+#include <Runtime/Renderer/Displayer.h>
 #include <GLFW/glfw3.h>
 
 namespace ImGuiNav
 {
     // create and destroy
-    void Initialize(ScreenRender *screen);
+    void Initialize(Displayer *displayer);
     void Terminate();
 
     // api

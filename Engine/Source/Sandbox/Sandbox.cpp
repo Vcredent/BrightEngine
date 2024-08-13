@@ -28,26 +28,26 @@ int main()
     Window *window = new Window("TurbineEngine", 1080, 1060);
     RenderDeviceContextWin32 *rdc = new RenderDeviceContextWin32(window);
     RenderDevice *rd = rdc->CreateRenderDevice();
-    ScreenRender *screen = new ScreenRender(rd, window);
-    ImGuiNav::Initialize(screen);
+    Displayer *displayer = new Displayer(rd, window);
+    ImGuiNav::Initialize(displayer);
 
     while (!window->IsClose()) {
         window->PollEvents();
 
         VkCommandBuffer cmdBuffer;
-        screen->CmdBeginScreenRendering(&cmdBuffer);
+        displayer->CmdBeginDisplayRendering(&cmdBuffer);
         {
             ImGuiNav::BeginNewFrame(cmdBuffer);
             static bool showDemoWindow = true;
             ImGui::ShowDemoWindow(&showDemoWindow);
             ImGuiNav::EndNewFrame(cmdBuffer);
         }
-        screen->CmdEndScreenRendering(cmdBuffer);
+        displayer->CmdEndDisplayRendering(cmdBuffer);
 
     }
 
     ImGuiNav::Terminate();
-    delete screen;
+    delete displayer;
     rdc->DestroyRenderDevice(rd);
     delete rdc;
     delete window;

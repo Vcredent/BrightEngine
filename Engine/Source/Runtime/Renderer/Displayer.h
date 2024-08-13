@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* ScreenRender.h                                                           */
+/* Displayer.h                                                              */
 /* ------------------------------------------------------------------------ */
 /*                        This file is part of:                             */
 /*                            BRIGHT ENGINE                                 */
@@ -26,19 +26,19 @@
 #include "Drivers/RenderDevice.h"
 #include "Window/Window.h"
 
-class ScreenRender {
+class Displayer {
 public:
-    ScreenRender(RenderDevice *vRenderDevice, Window *vWindow);
-   ~ScreenRender();
+    Displayer(RenderDevice *vRenderDevice, Window *vWindow);
+   ~Displayer();
 
     RenderDevice *GetRenderDevice() { return rd; }
-    VkRenderPass GetRenderPass() { return window->render_pass; }
-    uint32_t GetImageBufferCount() { return window->image_buffer_count; }
+    VkRenderPass GetRenderPass() { return displayWindow->renderPass; }
+    uint32_t GetImageBufferCount() { return displayWindow->imageBufferCount; }
     Window *GetFocusedWindow() { return currentFocusedWindow; }
     void *GetNativeWindow() { return currentFocusedWindow->GetNativeWindow(); }
 
-    void CmdBeginScreenRendering(VkCommandBuffer *p_cmd_buffer);
-    void CmdEndScreenRendering(VkCommandBuffer cmdBuffer);
+    void CmdBeginDisplayRendering(VkCommandBuffer *p_cmd_buffer);
+    void CmdEndDisplayRendering(VkCommandBuffer cmdBuffer);
 
 private:
     void _Initialize();
@@ -50,18 +50,18 @@ private:
         VkFramebuffer framebuffer;
     };
 
-    struct _Window {
-        VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
+    struct DisplayWindow {
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
         VkFormat format;
-        VkColorSpaceKHR color_space;
-        uint32_t image_buffer_count;
-        VkCompositeAlphaFlagBitsKHR composite_alpha;
-        VkPresentModeKHR present_mode;
-        VkRenderPass render_pass = VK_NULL_HANDLE;
-        VkSwapchainKHR swap_chain = VK_NULL_HANDLE;
-        SwapchainResource *swap_chain_resources;
-        VkSemaphore image_available_semaphore;
-        VkSemaphore render_finished_semaphore;
+        VkColorSpaceKHR colorSpace;
+        uint32_t imageBufferCount;
+        VkCompositeAlphaFlagBitsKHR compositeAlpha;
+        VkPresentModeKHR presentMode;
+        VkRenderPass renderPass = VK_NULL_HANDLE;
+        VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+        SwapchainResource *swapchainResources;
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
         uint32_t width;
         uint32_t height;
     };
@@ -71,16 +71,16 @@ private:
     void _UpdateSwapChain();
 
     RenderDevice *rd = VK_NULL_HANDLE;
-    VkInstance vk_instance = VK_NULL_HANDLE;
-    VkPhysicalDevice vk_physical_device = VK_NULL_HANDLE;
-    VkDevice vk_device = VK_NULL_HANDLE;
-    uint32_t vk_graph_queue_family = 0;
-    VkCommandPool vk_cmd_pool = VK_NULL_HANDLE;
-    _Window *window = VK_NULL_HANDLE;
-    VkQueue vk_graph_queue = VK_NULL_HANDLE;
+    VkInstance instance = VK_NULL_HANDLE;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device = VK_NULL_HANDLE;
+    uint32_t queueFamily = 0;
+    VkCommandPool commandPool = VK_NULL_HANDLE;
+    DisplayWindow *displayWindow = VK_NULL_HANDLE;
+    VkQueue queue = VK_NULL_HANDLE;
     Window *currentFocusedWindow = VK_NULL_HANDLE;
 
-    uint32_t acquire_next_index;
+    uint32_t acquireNextIndex;
 };
 
 #endif /* _RENDERING_SCREEN_H_ */
