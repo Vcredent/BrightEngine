@@ -24,18 +24,32 @@
 
 namespace Sandbox
 {
+    void DrawCanvas()
+    {
+        VkCommandBuffer cmdBuffer;
+        canvas->CmdBeginCanvasRendering(&cmdBuffer);
+        canvas->CmdEndCanvasRendering(cmdBuffer);
+    }
+
     void DrawEditor()
     {
-        static bool showDemoWindow = true;
-        ImGui::ShowDemoWindow(&showDemoWindow);
-
-        // draw scene.
-        ImGuiNav::BeginViewport("场景");
+        VkCommandBuffer cmdBuffer;
+        displayer->CmdBeginDisplayRendering(&cmdBuffer);
+        ImGuiNav::BeginNewFrame(cmdBuffer);
         {
-            ImVec2 region = ImGui::GetContentRegionAvail();
-            camera->SetAspectRatio(region.x / region.y);
+            static bool showDemoWindow = true;
+            ImGui::ShowDemoWindow(&showDemoWindow);
+
+            // draw scene.
+            ImGuiNav::BeginViewport("场景");
+            {
+                ImVec2 region = ImGui::GetContentRegionAvail();
+                camera->SetAspectRatio(region.x / region.y);
+            }
+            ImGuiNav::EndViewport();
         }
-        ImGuiNav::EndViewport();
+        ImGuiNav::EndNewFrame(cmdBuffer);
+        displayer->CmdEndDisplayRendering(cmdBuffer);
     }
 }
 
@@ -46,19 +60,9 @@ int main()
     while (!window->IsClose())
     {
         window->PollEvents();
-        VkCommandBuffer cmdBuffer;
-
-        // update
         Sandbox::UpdateCamera();
-
-        // scene
-
-        // display
-        displayer->CmdBeginDisplayRendering(&cmdBuffer);
-        ImGuiNav::BeginNewFrame(cmdBuffer);
+        Sandbox::DrawCanvas();
         Sandbox::DrawEditor();
-        ImGuiNav::EndNewFrame(cmdBuffer);
-        displayer->CmdEndDisplayRendering(cmdBuffer);
     }
 
     Sandbox::Terminate();

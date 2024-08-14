@@ -23,11 +23,13 @@
 #include <Runtime/Win32/RenderDeviceCotnextWin32.h>
 #include <Runtime/Camera/Camera.h>
 #include <ImGuiNav/ImGuiNav.h>
+#include <Runtime/Renderer/Canvas.h>
 
 Window *window;
 RenderDeviceContextWin32 *rdc;
 RenderDevice *rd;
 Displayer *displayer;
+Canvas *canvas;
 Camera *camera;
 
 namespace Sandbox
@@ -39,12 +41,14 @@ namespace Sandbox
         rd = rdc->CreateRenderDevice();
         displayer = new Displayer(rd, window);
         ImGuiNav::Initialize(displayer);
+        canvas = new Canvas(rd);
         camera = new Camera();
     }
 
     void Terminate()
     {
         delete camera;
+        delete canvas;
         ImGuiNav::Terminate();
         delete displayer;
         rdc->DestroyRenderDevice(rd);
