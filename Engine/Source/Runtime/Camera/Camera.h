@@ -61,6 +61,7 @@ private:
 
     float pitch;
     float yaw;
+
     float fov;
     float aspectRatio;
     float near;

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Sandbox.cpp                                                              */
+/* Sandbox.h                                                                */
 /* ------------------------------------------------------------------------ */
 /*                        This file is part of:                             */
 /*                            BRIGHT ENGINE                                 */
@@ -20,43 +20,35 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
-#include "Sandbox.h"
+#include <Runtime/Win32/RenderDeviceCotnextWin32.h>
+#include <Runtime/Camera/Camera.h>
+#include <ImGuiNav/ImGuiNav.h>
 
-void DrawEditor()
+Window *window;
+RenderDeviceContextWin32 *rdc;
+RenderDevice *rd;
+Displayer *displayer;
+Camera *camera;
+
+namespace Sandbox
 {
-    static bool showDemoWindow = true;
-    ImGui::ShowDemoWindow(&showDemoWindow);
-
-    // draw scene.
-    ImGuiNav::BeginViewport("场景");
+    void Initialize()
     {
-        ImVec2 region = ImGui::GetContentRegionAvail();
-        camera->SetAspectRatio(region.x / region.y);
-    }
-    ImGuiNav::EndViewport();
-}
-
-int main()
-{
-    Sandbox::Initialize();
-
-    while (!window->IsClose())
-    {
-        window->PollEvents();
-        VkCommandBuffer cmdBuffer;
-
-        displayer->CmdBeginDisplayRendering(&cmdBuffer);
-        {
-            ImGuiNav::BeginNewFrame(cmdBuffer);
-            {
-                DrawEditor();
-            }
-            ImGuiNav::EndNewFrame(cmdBuffer);
-        }
-        displayer->CmdEndDisplayRendering(cmdBuffer);
+        window = new Window("TurbineEngine", 1080, 1060);
+        rdc = new RenderDeviceContextWin32(window);
+        rd = rdc->CreateRenderDevice();
+        displayer = new Displayer(rd, window);
+        ImGuiNav::Initialize(displayer);
+        camera = new Camera();
     }
 
-    Sandbox::Terminate();
-
-    return 0;
+    void Terminate()
+    {
+        delete camera;
+        ImGuiNav::Terminate();
+        delete displayer;
+        rdc->DestroyRenderDevice(rd);
+        delete rdc;
+        delete window;
+    }
 }

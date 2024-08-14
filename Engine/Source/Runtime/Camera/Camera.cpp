@@ -25,8 +25,8 @@
 Camera::Camera(float vFov, float vNear, float vFar)
     : fov(vFov), aspectRatio(1.0f), near(vNear), far(vFar)
 {
-    position = vec3(0.0f, 0.0f, 1.0f);
-    front = vec3(0.0f, 0.0f, -1.0f);
+    position = vec3(0.0f, 0.0f, -6.0f);
+    front = vec3(0.0f, 0.0f, 0.0f);
     up = vec3(0.0f, 1.0f, 0.0f);
 }
 
@@ -37,10 +37,9 @@ Camera::~Camera()
 
 void Camera::Update()
 {
-    front.x = -glm::cos(glm::radians(yaw)) * glm::cos(glm::radians(pitch));
-    front.y = -glm::sin(glm::radians(pitch));
-    front.z = glm::sin(glm::radians(yaw)) * glm::cos(glm::radians(pitch));
-    front = glm::normalize(front);
+    front.x = glm::cos(glm::radians(pitch)) * glm::cos(glm::radians(yaw));
+    front.y = glm::sin(glm::radians(yaw));
+    front.z = glm::cos(glm::radians(pitch)) * glm::sin(glm::radians(yaw));
 
     viewMatrix = glm::lookAt(position, position + front, up);
     projectionMatrix = glm::perspective(fov, aspectRatio, near, far);
