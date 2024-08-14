@@ -27,6 +27,7 @@ file(GLOB_RECURSE SOURCES
   "Win32/*.cpp"
   "Window/*.cpp"
   "Renderer/*.cpp"
+  "Camera/*.cpp"
   "${TURBINE_THIRDPARTY_DIRECTORY}/vma/*.cpp"
   "${TURBINE_THIRDPARTY_DIRECTORY}/volk/*.cpp"
 )

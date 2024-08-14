@@ -21,6 +21,7 @@
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
 #include <Runtime/Win32/RenderDeviceCotnextWin32.h>
+#include <Runtime/Camera/Camera.h>
 #include <ImGuiNav/ImGuiNav.h>
 
 int main()
@@ -30,6 +31,8 @@ int main()
     RenderDevice *rd = rdc->CreateRenderDevice();
     Displayer *displayer = new Displayer(rd, window);
     ImGuiNav::Initialize(displayer);
+
+    Camera camera;
 
     while (!window->IsClose()) {
         window->PollEvents();
@@ -43,7 +46,6 @@ int main()
             ImGuiNav::EndNewFrame(cmdBuffer);
         }
         displayer->CmdEndDisplayRendering(cmdBuffer);
-
     }
 
     ImGuiNav::Terminate();
