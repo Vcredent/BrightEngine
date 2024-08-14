@@ -51,4 +51,91 @@ namespace Sandbox
         delete rdc;
         delete window;
     }
+
+    void UpdateCamera()
+    {
+        // update camera
+        static bool isDragging = false;
+        static bool isFirst = true;
+        static bool lastX = 0.0f, lastY = 0.0f;
+        static int presslist[1024] = { 0 };
+
+        if (window->GetKey(GLFW_KEY_F))
+        {
+            isDragging = true;
+            isFirst = true;
+            window->HideCursor();
+        }
+
+        if (window->GetKey(GLFW_KEY_ESCAPE) && isDragging)
+        {
+            isDragging = false;
+            isFirst = false;
+            window->ShowCursor();
+        }
+
+        if (isDragging)
+        {
+            float xpos, ypos;
+            window->GetCursorPosition(&xpos, &ypos);
+
+            // rotation
+            if (isFirst)
+            {
+                lastX = xpos;
+                lastY = ypos;
+            }
+
+            float sensitivity = camera->GetSensitivity();
+            float xoffset = (xpos - lastX) * sensitivity;
+            float yoffset = (ypos - lastY) * sensitivity;
+
+            lastX = xpos;
+            lastY = ypos;
+
+            float pitch = camera->GetPitch();
+            float yaw = camera->GetYaw();
+
+            pitch += yoffset;
+            yaw += xoffset;
+            pitch = glm::clamp(-89.0f, pitch, 89.0f);
+
+            camera->SetPitch(pitch);
+            camera->SetYaw(yaw);
+
+            // move
+            int action;
+            if ((action = window->GetKey(GLFW_KEY_W)))
+                presslist[GLFW_KEY_W] = action;
+            if ((action = window->GetKey(GLFW_KEY_S)))
+                presslist[GLFW_KEY_S] = action;
+            if ((action = window->GetKey(GLFW_KEY_A)))
+                presslist[GLFW_KEY_A] = action;
+            if ((action = window->GetKey(GLFW_KEY_D)))
+                presslist[GLFW_KEY_D] = action;
+
+            vec3 position = camera->GetPosition();
+            vec3 front = camera->GetFront();
+            float speed = camera->GetSpeed();
+
+            static float lastTime = 0.0f;
+            float currentTime = (float)  glfwGetTime();
+            float deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            float velocity = speed * deltaTime;
+
+            if (presslist[GLFW_KEY_W])
+                position += velocity * front;
+            if (presslist[GLFW_KEY_S])
+                position -= velocity * front;
+            if (presslist[GLFW_KEY_A])
+                position -= glm::normalize(glm::cross(front, camera->GetUp())) * velocity;
+            if (presslist[GLFW_KEY_D])
+                position += glm::normalize(glm::cross(front, camera->GetUp())) * velocity;
+
+            camera->SetPosition(position);
+        }
+    }
+
 }

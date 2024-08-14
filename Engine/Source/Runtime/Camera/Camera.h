@@ -32,22 +32,29 @@ public:
     Camera(float vFov = 45.0f, float vNear = 1024.0f, float vFar = 0.1f);
    ~Camera();
 
-    V_FORCEINLINE void SetPosition(float x, float y, float z) { SetPosition(vec3(x, y, z)); }
     V_FORCEINLINE void SetPosition(const vec3 &vPosition) { position = vPosition; }
+    V_FORCEINLINE void SetFront(const vec3 &vFront) { front = vFront; }
+    V_FORCEINLINE void SetUp(const vec3 &vUp) { up = vUp; }
     V_FORCEINLINE void SetPitch(float vPitch) { pitch = vPitch; }
     V_FORCEINLINE void SetYaw(float vYaw) { yaw = vYaw; }
     V_FORCEINLINE void SetFov(float vFov) { fov = vFov; }
     V_FORCEINLINE void SetAspectRatio(float vAspectRatio) { aspectRatio = vAspectRatio; }
     V_FORCEINLINE void SetNear(float vNear) { near = vNear; }
     V_FORCEINLINE void SetFar(float vFar) { far = vFar; }
+    V_FORCEINLINE void SetSensitivity(float vSensitivity) { sensitivity = vSensitivity; }
+    V_FORCEINLINE void SetSpeed(float vSpeed) { speed = vSpeed; }
 
     V_FORCEINLINE vec3 GetPosition() { return position; }
+    V_FORCEINLINE vec3 GetFront() { return front; }
+    V_FORCEINLINE vec3 GetUp() { return up; }
     V_FORCEINLINE float GetPitch() { return pitch; }
     V_FORCEINLINE float GetYaw() { return yaw; }
     V_FORCEINLINE float GetFov() { return fov; }
     V_FORCEINLINE float GetAspectRatio() { return aspectRatio; }
     V_FORCEINLINE float GetNear() { return near; }
     V_FORCEINLINE float GetFar() { return far; }
+    V_FORCEINLINE float GetSensitivity() { return sensitivity; }
+    V_FORCEINLINE float GetSpeed() { return speed; }
 
     V_FORCEINLINE const mat4& GetViewMatrix() { return viewMatrix; }
     V_FORCEINLINE const mat4& GetProjectionMatrix() { return projectionMatrix; }
@@ -66,6 +73,9 @@ private:
     float aspectRatio;
     float near;
     float far;
+
+    float sensitivity = 0.05f;
+    float speed = 10.0f;
 
     mat4 viewMatrix;
     mat4 projectionMatrix;
