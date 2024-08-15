@@ -20,10 +20,15 @@
 # limitations under the License.                                           #
 #                                                                          #
 # ------------------------------------------------------------------------ #
+
+# directories
 .idea
 cmake-build-debug
 cmake-build-run
-*.spv
 out
 .vs
+
+# files
 CMakeSettings.json
+*.vspv
+*.fspv
