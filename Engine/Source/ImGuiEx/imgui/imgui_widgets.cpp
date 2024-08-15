@@ -853,7 +853,7 @@ bool ImGui::CloseButton(ImGuiID id, const ImVec2& pos)
     ImU32 bg_col = GetColorU32(held ? ImGuiCol_ButtonActive : ImGuiCol_ButtonHovered);
     if (hovered)
         window->DrawList->AddRectFilled(bb.Min, bb.Max, bg_col);
-    RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_Compact);
+    RenderNavHighlight(bb, id, ImGuiExHighlightFlags_Compact);
     ImU32 cross_col = GetColorU32(ImGuiCol_Text);
     ImVec2 cross_center = bb.GetCenter() - ImVec2(0.5f, 0.5f);
     float cross_extent = g.FontSize * 0.5f * 0.7071f - 1.0f;
@@ -882,7 +882,7 @@ bool ImGui::CollapseButton(ImGuiID id, const ImVec2& pos, ImGuiDockNode* dock_no
     ImU32 text_col = GetColorU32(ImGuiCol_Text);
     if (hovered || held)
         window->DrawList->AddRectFilled(bb.Min, bb.Max, bg_col);
-    RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_Compact);
+    RenderNavHighlight(bb, id, ImGuiExHighlightFlags_Compact);
 
     if (dock_node)
         RenderArrowDockMenu(window->DrawList, bb.Min, g.FontSize, text_col);
@@ -1429,7 +1429,7 @@ bool ImGui::TextLink(const char* label)
 
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held);
-    RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_None);
+    RenderNavHighlight(bb, id, ImGuiExHighlightFlags_None);
 
     ImVec4 text_colf = g.Style.Colors[ImGuiCol_TextLink];
     ImVec4 line_colf = text_colf;
@@ -6578,9 +6578,9 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     // Render
     {
         const ImU32 text_col = GetColorU32(ImGuiCol_Text);
-        ImGuiNavHighlightFlags nav_highlight_flags = ImGuiNavHighlightFlags_Compact;
+        ImGuiExHighlightFlags nav_highlight_flags = ImGuiExHighlightFlags_Compact;
         if (is_multi_select)
-            nav_highlight_flags |= ImGuiNavHighlightFlags_AlwaysDraw; // Always show the nav rectangle
+            nav_highlight_flags |= ImGuiExHighlightFlags_AlwaysDraw; // Always show the nav rectangle
         if (display_frame)
         {
             // Framed type
@@ -6927,9 +6927,9 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
         }
         if (g.NavId == id)
         {
-            ImGuiNavHighlightFlags nav_highlight_flags = ImGuiNavHighlightFlags_Compact | ImGuiNavHighlightFlags_NoRounding;
+            ImGuiExHighlightFlags nav_highlight_flags = ImGuiExHighlightFlags_Compact | ImGuiExHighlightFlags_NoRounding;
             if (is_multi_select)
-                nav_highlight_flags |= ImGuiNavHighlightFlags_AlwaysDraw; // Always show the nav rectangle
+                nav_highlight_flags |= ImGuiExHighlightFlags_AlwaysDraw; // Always show the nav rectangle
             RenderNavHighlight(bb, id, nav_highlight_flags);
         }
     }
@@ -7388,7 +7388,7 @@ ImGuiMultiSelectIO* ImGui::BeginMultiSelect(ImGuiMultiSelectFlags flags, int sel
     ms->ScopeRectMin = window->DC.CursorMaxPos = window->DC.CursorPos;
     PushFocusScope(ms->FocusScopeId);
     if (flags & ImGuiMultiSelectFlags_ScopeWindow) // Mark parent child window as navigable into, with highlight. Assume user will always submit interactive items.
-        window->DC.NavLayersActiveMask |= 1 << ImGuiNavLayer_Main;
+        window->DC.NavLayersActiveMask |= 1 << ImGuiExLayer_Main;
 
     // Use copy of keyboard mods at the time of the request, otherwise we would requires mods to be held for an extra frame.
     ms->KeyMods = g.NavJustMovedToId ? (g.NavJustMovedToIsTabbing ? 0 : g.NavJustMovedToKeyMods) : g.IO.KeyMods;
@@ -7527,7 +7527,7 @@ ImGuiMultiSelectIO* ImGui::EndMultiSelect()
                 FocusWindow(window, ImGuiFocusRequestFlags_UnlessBelowModal);
                 SetHoveredID(ms->BoxSelectId);
                 if (ms->Flags & ImGuiMultiSelectFlags_ScopeRect)
-                    SetNavID(0, ImGuiNavLayer_Main, ms->FocusScopeId, ImRect(g.IO.MousePos, g.IO.MousePos)); // Automatically switch FocusScope for initial click from void to box-select.
+                    SetNavID(0, ImGuiExLayer_Main, ms->FocusScopeId, ImRect(g.IO.MousePos, g.IO.MousePos)); // Automatically switch FocusScope for initial click from void to box-select.
             }
         }
 
@@ -7540,7 +7540,7 @@ ImGuiMultiSelectIO* ImGui::EndMultiSelect()
     if (ms->Flags & ImGuiMultiSelectFlags_NavWrapX)
     {
         IM_ASSERT(ms->Flags & ImGuiMultiSelectFlags_ScopeWindow); // Only supported at window scope
-        ImGui::NavMoveRequestTryWrapping(ImGui::GetCurrentWindow(), ImGuiNavMoveFlags_WrapX);
+        ImGui::NavMoveRequestTryWrapping(ImGui::GetCurrentWindow(), ImGuiExMoveFlags_WrapX);
     }
 
     // Unwind
@@ -8483,7 +8483,7 @@ bool ImGui::BeginMenuBar()
     window->DC.CursorPos = window->DC.CursorMaxPos = ImVec2(bar_rect.Min.x + window->DC.MenuBarOffset.x, bar_rect.Min.y + window->DC.MenuBarOffset.y);
     window->DC.LayoutType = ImGuiLayoutType_Horizontal;
     window->DC.IsSameLine = false;
-    window->DC.NavLayerCurrent = ImGuiNavLayer_Menu;
+    window->DC.NavLayerCurrent = ImGuiExLayer_Menu;
     window->DC.MenuBarAppending = true;
     AlignTextToFramePadding();
     return true;
@@ -8503,11 +8503,11 @@ void ImGui::EndMenuBar()
         ImGuiWindow* nav_earliest_child = g.NavWindow;
         while (nav_earliest_child->ParentWindow && (nav_earliest_child->ParentWindow->Flags & ImGuiWindowFlags_ChildMenu))
             nav_earliest_child = nav_earliest_child->ParentWindow;
-        if (nav_earliest_child->ParentWindow == window && nav_earliest_child->DC.ParentLayoutType == ImGuiLayoutType_Horizontal && (g.NavMoveFlags & ImGuiNavMoveFlags_Forwarded) == 0)
+        if (nav_earliest_child->ParentWindow == window && nav_earliest_child->DC.ParentLayoutType == ImGuiLayoutType_Horizontal && (g.NavMoveFlags & ImGuiExMoveFlags_Forwarded) == 0)
         {
             // To do so we claim focus back, restore NavId and then process the movement request for yet another frame.
             // This involve a one-frame delay which isn't very problematic in this situation. We could remove it by scoring in advance for multiple window (probably not worth bothering)
-            const ImGuiNavLayer layer = ImGuiNavLayer_Menu;
+            const ImGuiExLayer layer = ImGuiExLayer_Menu;
             IM_ASSERT(window->DC.NavLayersActiveMaskNext & (1 << layer)); // Sanity check (FIXME: Seems unnecessary)
             FocusWindow(window);
             SetNavID(window->NavLastIds[layer], layer, 0, window->NavRectRel[layer]);
@@ -8532,7 +8532,7 @@ void ImGui::EndMenuBar()
     EndGroup(); // Restore position on layer 0 // FIXME: Misleading to use a group for that backup/restore
     window->DC.LayoutType = ImGuiLayoutType_Vertical;
     window->DC.IsSameLine = false;
-    window->DC.NavLayerCurrent = ImGuiNavLayer_Main;
+    window->DC.NavLayerCurrent = ImGuiExLayer_Main;
     window->DC.MenuBarAppending = false;
     window->DC.CursorMaxPos = restore_cursor_max_pos;
 }
@@ -8607,7 +8607,7 @@ void ImGui::EndMainMenuBar()
     // When the user has left the menu layer (typically: closed menus through activation of an item), we restore focus to the previous window
     // FIXME: With this strategy we won't be able to restore a NULL focus.
     ImGuiContext& g = *GImGui;
-    if (g.CurrentWindow == g.NavWindow && g.NavLayer == ImGuiNavLayer_Main && !g.NavAnyRequest)
+    if (g.CurrentWindow == g.NavWindow && g.NavLayer == ImGuiExLayer_Main && !g.NavAnyRequest)
         FocusTopMostWindowUnderOne(g.NavWindow, NULL, NULL, ImGuiFocusRequestFlags_UnlessBelowModal | ImGuiFocusRequestFlags_RestoreFocusedChild);
 
     End();

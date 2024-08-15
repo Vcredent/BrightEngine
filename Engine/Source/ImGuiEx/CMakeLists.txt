@@ -20,10 +20,10 @@
 # limitations under the License.                                           #
 #                                                                          #
 # ------------------------------------------------------------------------ #
-set(LIBRARY_NAME "ImGuiNav")
+set(LIBRARY_NAME "ImGuiEx")
 
 file(GLOB_RECURSE SOURCES
-  "ImGuiNav.cpp"
+  "ImGuiEx.cpp"
   "imgui/imgui.cpp"
   "imgui/imgui_draw.cpp"
   "imgui/imgui_demo.cpp"
@@ -41,6 +41,6 @@ target_link_libraries(${LIBRARY_NAME} PRIVATE
 
 target_include_directories(${LIBRARY_NAME} SYSTEM PUBLIC
   "${TURBINE_ROOT_DIRECTORY}/Engine/Source"
-  "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ImGuiNav"
-  "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ImGuiNav/imgui"
+  "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ImGuiEx"
+  "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ImGuiEx/imgui"
 )

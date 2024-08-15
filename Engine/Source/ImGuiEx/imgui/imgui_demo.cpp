@@ -10422,7 +10422,7 @@ struct ExampleAssetsBrowser
 
             // - Enable keyboard wrapping on X axis
             // (FIXME-MULTISELECT: We haven't designed/exposed a general nav wrapping api yet, so this flag is provided as a courtesy to avoid doing:
-            //    ImGui::NavMoveRequestTryWrapping(ImGui::GetCurrentWindow(), ImGuiNavMoveFlags_WrapX);
+            //    ImGui::NavMoveRequestTryWrapping(ImGui::GetCurrentWindow(), ImGuiExMoveFlags_WrapX);
             // When we finish implementing a more general API for this, we will obsolete this flag in favor of the new system)
             ms_flags |= ImGuiMultiSelectFlags_NavWrapX;
 

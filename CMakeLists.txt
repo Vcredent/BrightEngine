@@ -36,5 +36,5 @@ set(TURBINE_THIRDPARTY_DIRECTORY "${TURBINE_ROOT_DIRECTORY}/Engine/Source/ThirdP
 include_directories(SYSTEM "${TURBINE_ROOT_DIRECTORY}/Engine/Source/Include")
 
 add_subdirectory("Engine/Source/Runtime")
-add_subdirectory("Engine/Source/ImGuiNav")
+add_subdirectory("Engine/Source/ImGuiEx")
 add_subdirectory("Engine/Source/Sandbox")

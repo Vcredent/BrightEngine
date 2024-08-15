@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* ImGuiNav.cpp                                                             */
+/* ImGuiEx.cpp                                                             */
 /* ------------------------------------------------------------------------ */
 /*                        This file is part of:                             */
 /*                            BRIGHT ENGINE                                 */
@@ -20,7 +20,7 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
-#include "ImGuiNav.h"
+#include "ImGuiEx.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_vulkan.h"
 #include <Turbine/Typedefs.h>
@@ -134,7 +134,7 @@ void _CheckDraggingCursor()
     }
 }
 
-namespace ImGuiNav {
+namespace ImGuiEx {
 
     void Initialize(Displayer *displayer)
     {
@@ -252,11 +252,6 @@ namespace ImGuiNav {
         ImGui::PopStyleVar();
     }
 
-    void DrawTexture(ImTextureID v_texture, const ImVec2 &v_size)
-    {
-        ImGui::Image(v_texture, v_size);
-    }
-
     void DragFloat(const char *label, float *v, float v_speed, float v_min, float v_max, const char *format)
     {
         _DragScalarN(label, v, 1, v_speed, v_min, v_max, format);
@@ -277,12 +272,12 @@ namespace ImGuiNav {
         _DragScalarN(label, v, 4, v_speed, v_min, v_max, format);
     }
 
-    ImTextureID AddTexture(RenderDevice::Texture2D *texture)
+    ImTextureID CreateImTextureID(RenderDevice::Texture2D *texture)
     {
         return ImGui_ImplVulkan_AddTexture(texture->sampler, texture->image_view, texture->image_layout);
     }
 
-    void RemoveTexture(ImTextureID v_texture)
+    void DestroyImTextureID(ImTextureID v_texture)
     {
         ImGui_ImplVulkan_RemoveTexture((VkDescriptorSet) v_texture);
     }

@@ -1629,14 +1629,14 @@ enum ImGuiInputFlags_
 };
 
 #ifndef IMGUI_DISABLE_OBSOLETE_KEYIO
-// OBSOLETED in 1.88 (from July 2022): ImGuiNavInput and io.NavInputs[].
+// OBSOLETED in 1.88 (from July 2022): ImGuiExInput and io.NavInputs[].
 // Official backends between 1.60 and 1.86: will keep working and feed gamepad inputs as long as IMGUI_DISABLE_OBSOLETE_KEYIO is not set.
 // Custom backends: feed gamepad inputs via io.AddKeyEvent() and ImGuiKey_GamepadXXX enums.
-enum ImGuiNavInput
+enum ImGuiExInput
 {
-    ImGuiNavInput_Activate, ImGuiNavInput_Cancel, ImGuiNavInput_Input, ImGuiNavInput_Menu, ImGuiNavInput_DpadLeft, ImGuiNavInput_DpadRight, ImGuiNavInput_DpadUp, ImGuiNavInput_DpadDown,
-    ImGuiNavInput_LStickLeft, ImGuiNavInput_LStickRight, ImGuiNavInput_LStickUp, ImGuiNavInput_LStickDown, ImGuiNavInput_FocusPrev, ImGuiNavInput_FocusNext, ImGuiNavInput_TweakSlow, ImGuiNavInput_TweakFast,
-    ImGuiNavInput_COUNT,
+    ImGuiExInput_Activate, ImGuiExInput_Cancel, ImGuiExInput_Input, ImGuiExInput_Menu, ImGuiExInput_DpadLeft, ImGuiExInput_DpadRight, ImGuiExInput_DpadUp, ImGuiExInput_DpadDown,
+    ImGuiExInput_LStickLeft, ImGuiExInput_LStickRight, ImGuiExInput_LStickUp, ImGuiExInput_LStickDown, ImGuiExInput_FocusPrev, ImGuiExInput_FocusNext, ImGuiExInput_TweakSlow, ImGuiExInput_TweakFast,
+    ImGuiExInput_COUNT,
 };
 #endif
 
@@ -2493,7 +2493,7 @@ struct ImGuiIO
 #ifndef IMGUI_DISABLE_OBSOLETE_KEYIO
     int         KeyMap[ImGuiKey_COUNT];             // [LEGACY] Input: map of indices into the KeysDown[512] entries array which represent your "native" keyboard state. The first 512 are now unused and should be kept zero. Legacy backend will write into KeyMap[] using ImGuiKey_ indices which are always >512.
     bool        KeysDown[ImGuiKey_COUNT];           // [LEGACY] Input: Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys). This used to be [512] sized. It is now ImGuiKey_COUNT to allow legacy io.KeysDown[GetKeyIndex(...)] to work without an overflow.
-    float       NavInputs[ImGuiNavInput_COUNT];     // [LEGACY] Since 1.88, NavInputs[] was removed. Backends from 1.60 to 1.86 won't build. Feed gamepad inputs via io.AddKeyEvent() and ImGuiKey_GamepadXXX enums.
+    float       NavInputs[ImGuiExInput_COUNT];     // [LEGACY] Since 1.88, NavInputs[] was removed. Backends from 1.60 to 1.86 won't build. Feed gamepad inputs via io.AddKeyEvent() and ImGuiKey_GamepadXXX enums.
     //void*     ImeWindowHandle;                    // [Obsoleted in 1.87] Set ImGuiViewport::PlatformHandleRaw instead. Set this to your HWND to get automatic IME cursor positioning.
 #endif
 

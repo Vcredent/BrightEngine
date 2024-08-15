@@ -1033,7 +1033,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
         const int column_n = table->DisplayOrderToIndex[order_n];
         ImGuiTableColumn* column = &table->Columns[column_n];
 
-        column->NavLayerCurrent = (ImS8)(table->FreezeRowsCount > 0 ? ImGuiNavLayer_Menu : ImGuiNavLayer_Main); // Use Count NOT request so Header line changes layer when frozen
+        column->NavLayerCurrent = (ImS8)(table->FreezeRowsCount > 0 ? ImGuiExLayer_Menu : ImGuiExLayer_Main); // Use Count NOT request so Header line changes layer when frozen
 
         if (offset_x_frozen && table->FreezeColumnsCount == visible_n)
         {
@@ -1471,7 +1471,7 @@ void    ImGui::EndTable()
     if (inner_window != outer_window)
     {
         short backup_nav_layers_active_mask = inner_window->DC.NavLayersActiveMask;
-        inner_window->DC.NavLayersActiveMask |= 1 << ImGuiNavLayer_Main; // So empty table don't appear to navigate differently.
+        inner_window->DC.NavLayersActiveMask |= 1 << ImGuiExLayer_Main; // So empty table don't appear to navigate differently.
         EndChild();
         inner_window->DC.NavLayersActiveMask = backup_nav_layers_active_mask;
     }
@@ -1998,7 +1998,7 @@ void ImGui::TableEndRow(ImGuiTable* table)
     if (unfreeze_rows_request)
     {
         for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
-            table->Columns[column_n].NavLayerCurrent = ImGuiNavLayer_Main;
+            table->Columns[column_n].NavLayerCurrent = ImGuiExLayer_Main;
         const float y0 = ImMax(table->RowPosY2 + 1, window->InnerClipRect.Min.y);
         table_instance->LastFrozenHeight = y0 - table->OuterRect.Min.y;
 
@@ -2121,7 +2121,7 @@ void ImGui::TableBeginCell(ImGuiTable* table, int column_n)
     window->DC.ColumnsOffset.x = start_x - window->Pos.x - window->DC.Indent.x; // FIXME-WORKRECT
     window->DC.CursorPosPrevLine.x = window->DC.CursorPos.x; // PrevLine.y is preserved. This allows users to call SameLine() to share LineSize between columns.
     window->DC.CurrLineTextBaseOffset = table->RowTextBaseline;
-    window->DC.NavLayerCurrent = (ImGuiNavLayer)column->NavLayerCurrent;
+    window->DC.NavLayerCurrent = (ImGuiExLayer)column->NavLayerCurrent;
 
     // Note how WorkRect.Max.y is only set once during layout
     window->WorkRect.Min.y = window->DC.CursorPos.y;
@@ -3124,7 +3124,7 @@ void ImGui::TableHeader(const char* label)
         if ((table->RowFlags & ImGuiTableRowFlags_Headers) == 0)
             TableSetBgColor(ImGuiTableBgTarget_CellBg, GetColorU32(ImGuiCol_TableHeaderBg), table->CurrentColumn);
     }
-    RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_Compact | ImGuiNavHighlightFlags_NoRounding);
+    RenderNavHighlight(bb, id, ImGuiExHighlightFlags_Compact | ImGuiExHighlightFlags_NoRounding);
     if (held)
         table->HeldHeaderColumn = (ImGuiTableColumnIdx)column_n;
     window->DC.CursorPos.y -= g.Style.ItemSpacing.y * 0.5f;

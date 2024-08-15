@@ -21,7 +21,7 @@
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
 #include <Runtime/Win32/RenderDeviceCotnextWin32.h>
-#include <ImGuiNav/ImGuiNav.h>
+#include <ImGuiEx/ImGuiEx.h>
 #include <Runtime/Renderer/Canvas.h>
 #include <Runtime/Renderer/CoordinateAxisRender.h>
 #include <Runtime/Camera/Camera.h>
@@ -41,7 +41,7 @@ namespace Sandbox
         rdc = new RenderDeviceContextWin32(window);
         rd = rdc->CreateRenderDevice();
         displayer = new Displayer(rd, window);
-        ImGuiNav::Initialize(displayer);
+        ImGuiEx::Initialize(displayer);
         canvas = new Canvas(rd);
         coordinateAxisLine = new CoordinateAxisRender(rd, canvas->GetRenderPass());
     }
@@ -50,7 +50,7 @@ namespace Sandbox
     {
         delete coordinateAxisLine;
         delete canvas;
-        ImGuiNav::Terminate();
+        ImGuiEx::Terminate();
         delete displayer;
         rdc->DestroyRenderDevice(rd);
         delete rdc;
@@ -86,7 +86,7 @@ int main()
 
         displayer->BeginDisplayRendering(&cmdBuffer);
         {
-            ImGuiNav::BeginNewFrame(cmdBuffer);
+            ImGuiEx::BeginNewFrame(cmdBuffer);
             {
                 static bool showDemoFlag = true;
                 ImGui::ShowDemoWindow(&showDemoFlag);
@@ -94,27 +94,27 @@ int main()
                 ImGui::Begin("调试");
                 {
                     Vector3 position = camera.GetPosition();
-                    ImGuiNav::DragFloat3("位置", glm::value_ptr(position), 0.01f);
+                    ImGuiEx::DragFloat3("位置", glm::value_ptr(position), 0.01f);
                     camera.SetPosition(position);
                     Vector3 direction = camera.GetDirection();
-                    ImGuiNav::DragFloat3("方向", glm::value_ptr(direction), 0.01f);
+                    ImGuiEx::DragFloat3("方向", glm::value_ptr(direction), 0.01f);
                     camera.SetDirection(direction);
                 }
                 ImGui::End();
 
-                ImGuiNav::BeginViewport("场景");
+                ImGuiEx::BeginViewport("场景");
                 {
                     region = ImGui::GetContentRegionAvail();
 
                     if (imPreview)
-                        ImGuiNav::RemoveTexture(imPreview);
-                    imPreview = ImGuiNav::AddTexture(preview);
+                        ImGuiEx::DestroyImTextureID(imPreview);
+                    imPreview = ImGuiEx::CreateImTextureID(preview);
 
                     ImGui::Image(imPreview, region);
                 }
-                ImGuiNav::EndViewport();
+                ImGuiEx::EndViewport();
             }
-            ImGuiNav::EndNewFrame(cmdBuffer);
+            ImGuiEx::EndNewFrame(cmdBuffer);
         }
         displayer->EndDisplayRendering();
     }
