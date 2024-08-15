@@ -73,7 +73,7 @@ int main()
         canvas->BeginCanvasRendering(&cmdBuffer, region.x, region.y);
         {
             coordinateAxisLine->SetViewUniformBuffer(
-              glm::lookAt(vec3(0.0f, 0.0f, -6.0f), vec3(0.0f), vec3(0.0f, 1.0f, 0.0f)),
+              glm::lookAt(Vector3(0.0f, 0.0f, -6.0f), Vector3(0.0f), Vector3(0.0f, 1.0f, 0.0f)),
               glm::perspective(45.0f, region.x / region.y, 0.1f, 128.0f)
             );
             coordinateAxisLine->CmdDrawCoordinateAxisRendering(cmdBuffer, region.x, region.y);

@@ -31,14 +31,14 @@ public:
     U_MEMNEW_ONLY CoordinateAxisRender(RenderDevice *vRenderDevice, VkRenderPass vRenderPass);
     ~CoordinateAxisRender();
 
-    void SetViewUniformBuffer(mat4 view, mat4 projection);
+    void SetViewUniformBuffer(Matrix4 view, Matrix4 projection);
     void CmdDrawCoordinateAxisRendering(VkCommandBuffer cmdBuffer, uint32_t w, uint32_t h);
 
 private:
     struct ViewUniformBuffer
     {
-        mat4 viewMatrix;
-        mat4 projectionMatrix;
+        Matrix4 viewMatrix;
+        Matrix4 projectionMatrix;
     };
 
     ViewUniformBuffer viewUniformBuffer;

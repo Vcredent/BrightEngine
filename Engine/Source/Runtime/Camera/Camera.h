@@ -25,7 +25,13 @@
 
 class Camera
 {
+public:
+    Camera(float vFov = 45.0f, float vNear = 0.1f, float vFar = 512.0f);
+   ~Camera();
 
+   void Update(float w, float h);
+
+private:
 };
 
 #endif /* _RENDER_CAMERA_H_ */

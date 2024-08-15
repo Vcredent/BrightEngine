@@ -63,7 +63,7 @@ CoordinateAxisRender::~CoordinateAxisRender()
     rd->DestroyBuffer(uniformBuffer);
 }
 
-void CoordinateAxisRender::SetViewUniformBuffer(mat4 view, mat4 projection)
+void CoordinateAxisRender::SetViewUniformBuffer(Matrix4 view, Matrix4 projection)
 {
     viewUniformBuffer.viewMatrix = view;
     viewUniformBuffer.projectionMatrix = projection;
