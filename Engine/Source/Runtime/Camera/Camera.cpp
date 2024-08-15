@@ -21,3 +21,14 @@
 /*                                                                          */
 /* ======================================================================== */
 #include "Camera.h"
+
+Camera::Camera(float v_Fov, float v_Near, float v_Far)
+    : fov(v_Fov), near(v_Near), far(v_Far)
+{
+    /* do nothing... */
+}
+
+Camera::~Camera()
+{
+    /* do nothing... */
+}

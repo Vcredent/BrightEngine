@@ -24,6 +24,7 @@
 #include <ImGuiNav/ImGuiNav.h>
 #include <Runtime/Renderer/Canvas.h>
 #include <Runtime/Renderer/CoordinateAxisRender.h>
+#include <Runtime/Camera/Camera.h>
 
 Window *window;
 RenderDeviceContextWin32 *rdc;
@@ -67,15 +68,17 @@ int main()
     static ImTextureID imPreview = NULL;
     static ImVec2 region = ImVec2(32.0f, 32.0f);
 
+    Camera camera;
+
     while (!window->IsClose()) {
         window->PollEvents();
 
+        camera.SetAspectRatio(region.x / region.y);
+        camera.Update();
+
         canvas->BeginCanvasRendering(&cmdBuffer, region.x, region.y);
         {
-            coordinateAxisLine->SetViewUniformBuffer(
-              glm::lookAt(Vector3(0.0f, 0.0f, -6.0f), Vector3(0.0f), Vector3(0.0f, 1.0f, 0.0f)),
-              glm::perspective(45.0f, region.x / region.y, 0.1f, 128.0f)
-            );
+            coordinateAxisLine->SetViewUniformBuffer(camera.GetViewMatrix(), camera.GetProjectionMatrix());
             coordinateAxisLine->CmdDrawCoordinateAxisRendering(cmdBuffer, region.x, region.y);
         }
         canvas->EndCanvasRendering();
@@ -87,6 +90,17 @@ int main()
             {
                 static bool showDemoFlag = true;
                 ImGui::ShowDemoWindow(&showDemoFlag);
+
+                ImGui::Begin("调试");
+                {
+                    Vector3 position = camera.GetPosition();
+                    ImGuiNav::DragFloat3("位置", glm::value_ptr(position), 0.01f);
+                    camera.SetPosition(position);
+                    Vector3 direction = camera.GetDirection();
+                    ImGuiNav::DragFloat3("方向", glm::value_ptr(direction), 0.01f);
+                    camera.SetDirection(direction);
+                }
+                ImGui::End();
 
                 ImGuiNav::BeginViewport("场景");
                 {

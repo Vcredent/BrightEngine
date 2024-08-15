@@ -24,6 +24,7 @@
 #define _RENDER_CAMERA_H_
 
 #include <Turbine/Math.h>
+#include <Turbine/Typedefs.h>
 
 class Camera
 {
@@ -31,17 +32,28 @@ public:
     Camera(float v_Fov = 45.0f, float v_Near = 0.1f, float v_Far = 512.0f);
    ~Camera();
 
-    Matrix4 GetViewMatrix() { return viewMatrix; }
-    Matrix4 GetProjectionMatrix() { return projectionMatrix; }
+    V_FORCEINLINE Matrix4 GetViewMatrix() { return viewMatrix; }
+    V_FORCEINLINE Matrix4 GetProjectionMatrix() { return projectionMatrix; }
 
-    void SetFov(float v_Fov) { fov = v_Fov; }
-    void SetNear(float v_Near) { near = v_Near; }
-    void SetFar(float v_Far) { near = v_Far; }
-    void SetAspectRatio(float v_Aspect) { aspect = v_Aspect; }
+    V_FORCEINLINE float GetFov() { return fov; }
+    V_FORCEINLINE float GetNear() { return near; }
+    V_FORCEINLINE float GetFar() { return near; }
+    V_FORCEINLINE float GetAspectRatio() { return aspect; }
+    V_FORCEINLINE Vector3 GetPosition() { return position; }
+    V_FORCEINLINE Vector3 GetDirection() { return direction; }
+    V_FORCEINLINE Vector3 GetUp() { return up; }
+
+    V_FORCEINLINE void SetFov(float v_Fov) { fov = v_Fov; }
+    V_FORCEINLINE void SetNear(float v_Near) { near = v_Near; }
+    V_FORCEINLINE void SetFar(float v_Far) { near = v_Far; }
+    V_FORCEINLINE void SetAspectRatio(float v_Aspect) { aspect = v_Aspect; }
+    V_FORCEINLINE void SetPosition(Vector3 v_Position) { position = v_Position; }
+    V_FORCEINLINE void SetDirection(Vector3 v_Direction) { direction = v_Direction; }
+    V_FORCEINLINE void SetUp(Vector3 v_Up) { up = v_Up; }
 
     void Update()
     {
-        viewMatrix = glm::lookAt(position, position + direction, up);
+        viewMatrix = glm::lookAt(position, direction, up);
         projectionMatrix = glm::perspective(fov, aspect, near, far);
     }
 
@@ -51,9 +63,9 @@ private:
     float near;
     float far;
 
-    Vector3 position;
-    Vector3 direction;
-    Vector3 up;
+    Vector3 position = Vector3(0.0f, 0.0f, -6.0f);
+    Vector3 direction = Vector3(0.0f, 0.0f, 0.0f);
+    Vector3 up = Vector3(0.0f, 1.0f, 0.0f);
 
     Matrix4 viewMatrix;
     Matrix4 projectionMatrix;

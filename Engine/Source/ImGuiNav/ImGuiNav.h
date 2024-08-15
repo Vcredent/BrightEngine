@@ -42,9 +42,18 @@ namespace ImGuiNav
     void EndViewport();
     void DrawTexture(ImTextureID v_texture, const ImVec2& v_size);
 
+    // widgets
+    void DragFloat(const char *label, float *v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f");
+    void DragFloat2(const char *label, float v[2], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f");
+    void DragFloat3(const char *label, float v[3], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f");
+    void DragFloat4(const char *label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f");
+
     // vulkan
     ImTextureID AddTexture(RenderDevice::Texture2D *texture);
     void RemoveTexture(ImTextureID v_texture);
+
+    // private
+    void _DragScalarN(const char *label, float *v, int v_number, float v_speed, float v_min, float v_max, const char *format);
 }
 
 #endif /* _PILOTUI_H_ */
