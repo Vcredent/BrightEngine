@@ -23,27 +23,31 @@
 #include <Runtime/Win32/RenderDeviceCotnextWin32.h>
 #include <ImGuiNav/ImGuiNav.h>
 #include <Runtime/Renderer/Canvas.h>
+#include <Runtime/Renderer/CoordinateAxisRender.h>
 
 Window *window;
 RenderDeviceContextWin32 *rdc;
 RenderDevice *rd;
 Displayer *displayer;
 Canvas *canvas;
+CoordinateAxisRender *coordinateAxisLine;
 
 namespace Sandbox
 {
     void Initialize()
     {
-        window = new Window("TurbineEngine", 1080, 1060);
+        window = new Window("TurbineEngine", 1920, 1080);
         rdc = new RenderDeviceContextWin32(window);
         rd = rdc->CreateRenderDevice();
         displayer = new Displayer(rd, window);
         ImGuiNav::Initialize(displayer);
         canvas = new Canvas(rd);
+        coordinateAxisLine = new CoordinateAxisRender(rd, canvas->GetRenderPass());
     }
 
     void Terminate()
     {
+        delete coordinateAxisLine;
         delete canvas;
         ImGuiNav::Terminate();
         delete displayer;
@@ -58,15 +62,24 @@ int main()
     Sandbox::Initialize();
     VkCommandBuffer cmdBuffer;
 
-    while (!window->IsClose())
-    {
+    // static
+    static RenderDevice::Texture2D *preview;
+    static ImTextureID imPreview = NULL;
+    static ImVec2 region = ImVec2(32.0f, 32.0f);
+
+    while (!window->IsClose()) {
         window->PollEvents();
 
-        canvas->BeginCanvasRendering(&cmdBuffer);
+        canvas->BeginCanvasRendering(&cmdBuffer, region.x, region.y);
         {
-
+            coordinateAxisLine->SetViewUniformBuffer(
+              glm::lookAt(vec3(0.0f, 0.0f, -6.0f), vec3(0.0f), vec3(0.0f, 1.0f, 0.0f)),
+              glm::perspective(45.0f, region.x / region.y, 0.1f, 128.0f)
+            );
+            coordinateAxisLine->CmdDrawCoordinateAxisRendering(cmdBuffer, region.x, region.y);
         }
         canvas->EndCanvasRendering();
+        canvas->GetFinishedRenderColorAttachment(&preview);
 
         displayer->BeginDisplayRendering(&cmdBuffer);
         {
@@ -77,14 +90,19 @@ int main()
 
                 ImGuiNav::BeginViewport("场景");
                 {
+                    region = ImGui::GetContentRegionAvail();
 
+                    if (imPreview)
+                        ImGuiNav::RemoveTexture(imPreview);
+                    imPreview = ImGuiNav::AddTexture(preview);
+
+                    ImGui::Image(imPreview, region);
                 }
                 ImGuiNav::EndViewport();
             }
             ImGuiNav::EndNewFrame(cmdBuffer);
         }
         displayer->EndDisplayRendering();
-
     }
 
     Sandbox::Terminate();

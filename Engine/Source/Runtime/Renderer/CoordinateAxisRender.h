@@ -1,8 +1,8 @@
 /* ======================================================================== */
-/* Canvas.h                                                                 */
+/* CoordinateAxisRender.h                                                   */
 /* ======================================================================== */
 /*                        This file is part of:                             */
-/*                           COPILOT ENGINE                                 */
+/*                            BRIGHT ENGINE                                 */
 /* ======================================================================== */
 /*                                                                          */
 /* Copyright (C) 2022 Vcredent All rights reserved.                         */
@@ -20,45 +20,34 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ======================================================================== */
-#ifndef _RENDERER_SCENE_RENDER_H_
-#define _RENDERER_SCENE_RENDER_H_
+#ifndef _RENDERER_AXIS_LINE_H_
+#define _RENDERER_AXIS_LINE_H_
 
 #include "Drivers/RenderDevice.h"
 #include <Turbine/Math.h>
 
-class Canvas
-{
+class CoordinateAxisRender {
 public:
-    Canvas(RenderDevice *vRenderDevice);
-   ~Canvas();
+    U_MEMNEW_ONLY CoordinateAxisRender(RenderDevice *vRenderDevice, VkRenderPass vRenderPass);
+    ~CoordinateAxisRender();
 
-    VkRenderPass GetRenderPass() { return renderPass; }
-    void GetFinishedRenderColorAttachment(RenderDevice::Texture2D **ppFinishedRenderColorAttachment)
-      { *ppFinishedRenderColorAttachment = resolve; }
-
-    void BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t vW, uint32_t vH);
-    void EndCanvasRendering();
+    void SetViewUniformBuffer(mat4 view, mat4 projection);
+    void CmdDrawCoordinateAxisRendering(VkCommandBuffer cmdBuffer, uint32_t w, uint32_t h);
 
 private:
-    void _Initialize();
-    void _CreateTextureAttachments();
-    void _CleanUpTextureAttachments();
+    struct ViewUniformBuffer
+    {
+        mat4 viewMatrix;
+        mat4 projectionMatrix;
+    };
+
+    ViewUniformBuffer viewUniformBuffer;
 
     RenderDevice *rd;
-    VkRenderPass renderPass;
-    VkCommandBuffer cmdBuffer;
-    VkQueue queue;
-    VkSampler sampler;
-    RenderDevice::Texture2D *color;
-    RenderDevice::Texture2D *depth;
-    RenderDevice::Texture2D *resolve;
-    VkFramebuffer framebuffer;
-
-    uint32_t w = 32.0f;
-    uint32_t h = 32.0f;
-    VkFormat surfaceFormat;
-    VkFormat depthFormat;
-    VkSampleCountFlagBits sampleCount;
+    RenderDevice::Buffer *uniformBuffer;
+    VkDescriptorSetLayout descriptor_set_layout;
+    VkDescriptorSet descriptor_set;
+    RenderDevice::Pipeline *pipeline;
 };
 
-#endif /* _RENDERER_SCENE_RENDER_H_ */
+#endif /* _RENDERER_AXIS_LINE_H_ */

@@ -37,7 +37,7 @@ Canvas::~Canvas()
     rd->FreeCommandBuffer(cmdBuffer);
 }
 
-void Canvas::SetViewport(uint32_t vW, uint32_t vH)
+void Canvas::BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t vW, uint32_t vH)
 {
     if (vW <= 0 || vH <= 0)
         return;
@@ -50,10 +50,7 @@ void Canvas::SetViewport(uint32_t vW, uint32_t vH)
         _CleanUpTextureAttachments();
         _CreateTextureAttachments();
     }
-}
 
-void Canvas::BeginCanvasRendering(VkCommandBuffer *pCmdBuffer)
-{
     *pCmdBuffer = cmdBuffer;
 
     rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
