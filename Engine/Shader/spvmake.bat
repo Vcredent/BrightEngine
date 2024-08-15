@@ -23,7 +23,7 @@
 @echo off
 setlocal
 
-call :makeall CoordinateAxis
+:: call :makeall CoordinateAxis
 
 exit
 

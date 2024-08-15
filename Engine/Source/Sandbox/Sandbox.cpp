@@ -24,48 +24,24 @@
 
 namespace Sandbox
 {
-    static ImVec2 canvasRegion = ImVec2(32.0f, 32.0f);
-    static RenderDevice::Texture2D *finishedRenderTexture;
-    static ImTextureID preview = NULL;
-
-    void DrawCanvas()
+    void Initialize()
     {
-        camera->SetAspectRatio(canvasRegion.x / canvasRegion.y);
-        canvas->SetViewport(canvasRegion.x, canvasRegion.y);
-
-        VkCommandBuffer cmdBuffer;
-        canvas->CmdBeginCanvasRendering(&cmdBuffer);
-        {
-            coordinateAxis->SetViewUniformBuffer(camera->GetViewMatrix(), camera->GetProjectionMatrix());
-            coordinateAxis->CmdDrawCoordinateAxisRendering(cmdBuffer, canvasRegion.x, canvasRegion.y);
-        }
-        canvas->CmdEndCanvasRendering();
-        canvas->GetFinishedRenderColorAttachment(&finishedRenderTexture);
+        window = new Window("TurbineEngine", 1080, 1060);
+        rdc = new RenderDeviceContextWin32(window);
+        rd = rdc->CreateRenderDevice();
+        displayer = new Displayer(rd, window);
+        ImGuiNav::Initialize(displayer);
+        canvas = new Canvas(rd);
     }
 
-    void DrawEditor()
+    void Terminate()
     {
-        VkCommandBuffer cmdBuffer;
-        displayer->CmdBeginDisplayRendering(&cmdBuffer);
-        ImGuiNav::BeginNewFrame(cmdBuffer);
-        {
-            static bool showDemoWindow = true;
-            ImGui::ShowDemoWindow(&showDemoWindow);
-
-            // draw scene.
-            ImGuiNav::BeginViewport("场景");
-            {
-                canvasRegion = ImGui::GetContentRegionAvail();
-                if (preview)
-                    ImGuiNav::RemoveTexture(preview);
-
-                preview = ImGuiNav::AddTexture(finishedRenderTexture);
-                ImGui::Image(preview, canvasRegion);
-            }
-            ImGuiNav::EndViewport();
-        }
-        ImGuiNav::EndNewFrame(cmdBuffer);
-        displayer->CmdEndDisplayRendering(cmdBuffer);
+        delete canvas;
+        ImGuiNav::Terminate();
+        delete displayer;
+        rdc->DestroyRenderDevice(rd);
+        delete rdc;
+        delete window;
     }
 }
 
@@ -76,9 +52,6 @@ int main()
     while (!window->IsClose())
     {
         window->PollEvents();
-        Sandbox::UpdateCamera();
-        Sandbox::DrawCanvas();
-        Sandbox::DrawEditor();
     }
 
     Sandbox::Terminate();
