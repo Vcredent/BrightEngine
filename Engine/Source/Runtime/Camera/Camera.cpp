@@ -1,5 +1,5 @@
 /* ======================================================================== */
-/* Camera.h                                                                 */
+/* Camera.cpp                                                               */
 /* ======================================================================== */
 /*                        This file is part of:                             */
 /*                           COPILOT ENGINE                                 */
@@ -20,43 +20,4 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ======================================================================== */
-#ifndef _RENDER_CAMERA_H_
-#define _RENDER_CAMERA_H_
-
-#include <Turbine/Math.h>
-
-class Camera
-{
-public:
-    Camera(float v_Fov = 45.0f, float v_Near = 0.1f, float v_Far = 512.0f);
-   ~Camera();
-
-    Matrix4 GetViewMatrix() { return viewMatrix; }
-    Matrix4 GetProjectionMatrix() { return projectionMatrix; }
-
-    void SetFov(float v_Fov) { fov = v_Fov; }
-    void SetNear(float v_Near) { near = v_Near; }
-    void SetFar(float v_Far) { near = v_Far; }
-    void SetAspectRatio(float v_Aspect) { aspect = v_Aspect; }
-
-    void Update()
-    {
-        viewMatrix = glm::lookAt(position, position + direction, up);
-        projectionMatrix = glm::perspective(fov, aspect, near, far);
-    }
-
-private:
-    float fov;
-    float aspect;
-    float near;
-    float far;
-
-    Vector3 position;
-    Vector3 direction;
-    Vector3 up;
-
-    Matrix4 viewMatrix;
-    Matrix4 projectionMatrix;
-};
-
-#endif /* _RENDER_CAMERA_H_ */
+#include "Camera.h"
