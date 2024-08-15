@@ -37,8 +37,8 @@ public:
     Window *GetFocusedWindow() { return currentFocusedWindow; }
     void *GetNativeWindow() { return currentFocusedWindow->GetNativeWindow(); }
 
-    void BeginDisplayRendering(VkCommandBuffer *p_cmd_buffer);
-    void EndDisplayRendering(VkCommandBuffer cmdBuffer);
+    void BeginDisplayRendering(VkCommandBuffer *pCmdBuffer);
+    void EndDisplayRendering();
 
 private:
     void _Initialize();
@@ -79,6 +79,7 @@ private:
     DisplayWindow *displayWindow = VK_NULL_HANDLE;
     VkQueue queue = VK_NULL_HANDLE;
     Window *currentFocusedWindow = VK_NULL_HANDLE;
+    VkCommandBuffer currentCmdBuffer;
 
     uint32_t acquireNextIndex;
 };

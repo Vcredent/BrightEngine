@@ -52,7 +52,7 @@ void Canvas::SetViewport(uint32_t vW, uint32_t vH)
     }
 }
 
-void Canvas::CmdBeginCanvasRendering(VkCommandBuffer *pCmdBuffer)
+void Canvas::BeginCanvasRendering(VkCommandBuffer *pCmdBuffer)
 {
     *pCmdBuffer = cmdBuffer;
 
@@ -69,7 +69,7 @@ void Canvas::CmdBeginCanvasRendering(VkCommandBuffer *pCmdBuffer)
     rd->CmdBeginRenderPass(cmdBuffer, renderPass, std::size(clearValues), std::data(clearValues), framebuffer, &rect);
 }
 
-void Canvas::CmdEndCanvasRendering()
+void Canvas::EndCanvasRendering()
 {
     rd->CmdEndRenderPass(cmdBuffer);
     rd->EndCommandBuffer(cmdBuffer);

@@ -62,6 +62,12 @@ int main()
     {
         window->PollEvents();
 
+        canvas->BeginCanvasRendering(&cmdBuffer);
+        {
+
+        }
+        canvas->EndCanvasRendering();
+
         displayer->BeginDisplayRendering(&cmdBuffer);
         {
             ImGuiNav::BeginNewFrame(cmdBuffer);
@@ -77,7 +83,7 @@ int main()
             }
             ImGuiNav::EndNewFrame(cmdBuffer);
         }
-        displayer->EndDisplayRendering(cmdBuffer);
+        displayer->EndDisplayRendering();
 
     }
 

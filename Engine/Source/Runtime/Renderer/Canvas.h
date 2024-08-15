@@ -37,8 +37,8 @@ public:
       { *ppFinishedRenderColorAttachment = resolve; }
 
     void SetViewport(uint32_t vW, uint32_t vH);
-    void CmdBeginCanvasRendering(VkCommandBuffer *pCmdBuffer);
-    void CmdEndCanvasRendering();
+    void BeginCanvasRendering(VkCommandBuffer *pCmdBuffer);
+    void EndCanvasRendering();
 
 private:
     void _Initialize();

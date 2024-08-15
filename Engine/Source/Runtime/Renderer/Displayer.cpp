@@ -47,14 +47,13 @@ Displayer::~Displayer()
     free(displayWindow);
 }
 
-void Displayer::BeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
+void Displayer::BeginDisplayRendering(VkCommandBuffer *pCmdBuffer)
 {
     _UpdateSwapChain();
     vkAcquireNextImageKHR(device, displayWindow->swapchain, UINT64_MAX, displayWindow->imageAvailableSemaphore, nullptr, &acquireNextIndex);
 
-    VkCommandBuffer cmdBuffer;
-    cmdBuffer = displayWindow->swapchainResources[acquireNextIndex].cmdBuffer;
-    rd->BeginCommandBuffer(cmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
+    currentCmdBuffer = displayWindow->swapchainResources[acquireNextIndex].cmdBuffer;
+    rd->BeginCommandBuffer(currentCmdBuffer, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
 
     VkClearValue clear_color = {
             0.10f, 0.10f, 0.10f, 1.0f
@@ -62,18 +61,18 @@ void Displayer::BeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
 
     VkRect2D rect = {};
     rect.extent = { displayWindow->width, displayWindow->height };
-    rd->CmdBeginRenderPass(cmdBuffer, displayWindow->renderPass, 1, &clear_color, displayWindow->swapchainResources[acquireNextIndex].framebuffer, &rect);
+    rd->CmdBeginRenderPass(currentCmdBuffer, displayWindow->renderPass, 1, &clear_color, displayWindow->swapchainResources[acquireNextIndex].framebuffer, &rect);
 
-    *p_cmd_buffer = cmdBuffer;
+    *pCmdBuffer = currentCmdBuffer;
 }
 
-void Displayer::EndDisplayRendering(VkCommandBuffer cmdBuffer)
+void Displayer::EndDisplayRendering()
 {
-    rd->CmdEndRenderPass(cmdBuffer);
-    rd->EndCommandBuffer(cmdBuffer);
+    rd->CmdEndRenderPass(currentCmdBuffer);
+    rd->EndCommandBuffer(currentCmdBuffer);
 
     VkPipelineStageFlags mask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    rd->CmdBufferSubmit(cmdBuffer, 1, &displayWindow->imageAvailableSemaphore, 1, &displayWindow->renderFinishedSemaphore, &mask, queue, VK_NULL_HANDLE);
+    rd->CmdBufferSubmit(currentCmdBuffer, 1, &displayWindow->imageAvailableSemaphore, 1, &displayWindow->renderFinishedSemaphore, &mask, queue, VK_NULL_HANDLE);
     rd->Present(queue, displayWindow->swapchain, acquireNextIndex, displayWindow->renderFinishedSemaphore);
 }
 
