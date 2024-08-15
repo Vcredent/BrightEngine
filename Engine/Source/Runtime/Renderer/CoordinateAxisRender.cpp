@@ -22,8 +22,8 @@
 /* ======================================================================== */
 #include "CoordinateAxisRender.h"
 
-CoordinateAxisRender::CoordinateAxisRender(RenderDevice *vRenderDevice, VkRenderPass vRenderPass)
-    : rd(vRenderDevice)
+CoordinateAxisRender::CoordinateAxisRender(RenderDevice *v_RenderDevice, VkRenderPass v_RenderPass)
+    : rd(v_RenderDevice)
 {
     uniformBuffer = rd->CreateBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(ViewUniformBuffer));
 
@@ -44,7 +44,7 @@ CoordinateAxisRender::CoordinateAxisRender(RenderDevice *vRenderDevice, VkRender
     };
 
     RenderDevice::PipelineCreateInfo create_info = {
-      /* render_pass= */ vRenderPass,
+      /* render_pass= */ v_RenderPass,
       /* polygon= */ VK_POLYGON_MODE_FILL,
       /* topology= */ VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
       /* cull_mode= */ VK_CULL_MODE_BACK_BIT,

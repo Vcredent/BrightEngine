@@ -23,15 +23,29 @@
 #ifndef _RENDER_CAMERA_H_
 #define _RENDER_CAMERA_H_
 
+#include <Turbine/Math.h>
+
 class Camera
 {
 public:
-    Camera(float vFov = 45.0f, float vNear = 0.1f, float vFar = 512.0f);
+    Camera(float v_Fov = 45.0f, float v_Near = 0.1f, float v_Far = 512.0f);
    ~Camera();
 
-   void Update(float w, float h);
+    Matrix4 GetViewMatrix() { return viewMatrix; }
+    Matrix4 GetProjectionMatrix() { return projectionMatrix; }
+
+    void SetAspectRatio(float v_Aspect) { aspect = v_Aspect; }
+
+    void Update();
 
 private:
+    float fov;
+    float aspect;
+    float near;
+    float far;
+
+    Matrix4 viewMatrix;
+    Matrix4 projectionMatrix;
 };
 
 #endif /* _RENDER_CAMERA_H_ */

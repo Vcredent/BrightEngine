@@ -28,7 +28,7 @@
 
 class Displayer {
 public:
-    Displayer(RenderDevice *vRenderDevice, Window *vWindow);
+    Displayer(RenderDevice *v_RenderDevice, Window *v_Window);
    ~Displayer();
 
     RenderDevice *GetRenderDevice() { return rd; }

@@ -28,7 +28,7 @@
 
 class CoordinateAxisRender {
 public:
-    U_MEMNEW_ONLY CoordinateAxisRender(RenderDevice *vRenderDevice, VkRenderPass vRenderPass);
+    U_MEMNEW_ONLY CoordinateAxisRender(RenderDevice *v_RenderDevice, VkRenderPass v_RenderPass);
     ~CoordinateAxisRender();
 
     void SetViewUniformBuffer(Matrix4 view, Matrix4 projection);

@@ -29,14 +29,14 @@
 class Canvas
 {
 public:
-    Canvas(RenderDevice *vRenderDevice);
+    Canvas(RenderDevice *v_RenderDevice);
    ~Canvas();
 
     VkRenderPass GetRenderPass() { return renderPass; }
     void GetFinishedRenderColorAttachment(RenderDevice::Texture2D **ppFinishedRenderColorAttachment)
       { *ppFinishedRenderColorAttachment = resolve; }
 
-    void BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t vW, uint32_t vH);
+    void BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t v_width, uint32_t v_height);
     void EndCanvasRendering();
 
 private:

@@ -23,8 +23,8 @@
 #include "Displayer.h"
 #include <algorithm>
 
-Displayer::Displayer(RenderDevice *vRenderDevice, Window *vWindow)
-    : rd(vRenderDevice), currentFocusedWindow(vWindow)
+Displayer::Displayer(RenderDevice *v_RenderDevice, Window *v_Window)
+    : rd(v_RenderDevice), currentFocusedWindow(v_Window)
 {
     instance = rd->GetDeviceContext()->GetInstance();
     physicalDevice = rd->GetDeviceContext()->GetPhysicalDevice();

@@ -23,8 +23,8 @@
 #include "Canvas.h"
 #include <array>
 
-Canvas::Canvas(RenderDevice *vRenderDevice)
-    : rd(vRenderDevice)
+Canvas::Canvas(RenderDevice *v_RenderDevice)
+    : rd(v_RenderDevice)
 {
     _Initialize();
 }
@@ -37,15 +37,15 @@ Canvas::~Canvas()
     rd->FreeCommandBuffer(cmdBuffer);
 }
 
-void Canvas::BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t vW, uint32_t vH)
+void Canvas::BeginCanvasRendering(VkCommandBuffer *pCmdBuffer, uint32_t v_width, uint32_t v_height)
 {
-    if (vW <= 0 || vH <= 0)
+    if (v_width <= 0 || v_height <= 0)
         return;
 
-    w = vW;
-    h = vH;
+    w = v_width;
+    h = v_height;
 
-    if (color->width != vW || color->height != vH)
+    if (color->width != v_width || color->height != v_height)
     {
         _CleanUpTextureAttachments();
         _CreateTextureAttachments();
