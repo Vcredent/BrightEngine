@@ -1,6 +1,6 @@
 #version 450
 
-float t = 0x7F7F;
+float t = 5.0f;
 
 vec3 vertices[4] = {
     {  t,    0.0f,  0.0f },
