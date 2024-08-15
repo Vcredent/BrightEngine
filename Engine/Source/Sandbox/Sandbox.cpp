@@ -91,7 +91,7 @@ int main()
                 static bool showDemoFlag = true;
                 ImGui::ShowDemoWindow(&showDemoFlag);
 
-                ImGui::Begin("调试");
+                ImGuiEx::Begin("调试");
                 {
                     Vector3 position = camera.GetPosition();
                     ImGuiEx::DragFloat3("位置", glm::value_ptr(position), 0.01f);
@@ -100,7 +100,7 @@ int main()
                     ImGuiEx::DragFloat3("方向", glm::value_ptr(direction), 0.01f);
                     camera.SetDirection(direction);
                 }
-                ImGui::End();
+                ImGuiEx::End();
 
                 ImGuiEx::BeginViewport("场景");
                 {
