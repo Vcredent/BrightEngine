@@ -256,9 +256,9 @@ namespace ImGuiNav {
         ImGui::Image(v_texture, v_size);
       }
 
-    ImTextureID AddTexture(VkSampler v_sampler, VkImageView v_image, VkImageLayout v_layout)
+    ImTextureID AddTexture(RenderDevice::Texture2D *texture)
       {
-        return ImGui_ImplVulkan_AddTexture(v_sampler, v_image, v_layout);
+        return ImGui_ImplVulkan_AddTexture(texture->sampler, texture->image_view, texture->image_layout);
       }
 
     void RemoveTexture(ImTextureID v_texture)

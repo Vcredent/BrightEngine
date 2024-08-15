@@ -24,6 +24,7 @@
 #include <Runtime/Camera/Camera.h>
 #include <ImGuiNav/ImGuiNav.h>
 #include <Runtime/Renderer/Canvas.h>
+#include <Runtime/Renderer/CoordinateAxisRender.h>
 
 Window *window;
 RenderDeviceContextWin32 *rdc;
@@ -31,6 +32,7 @@ RenderDevice *rd;
 Displayer *displayer;
 Canvas *canvas;
 Camera *camera;
+CoordinateAxisRender *coordinateAxis;
 
 namespace Sandbox
 {
@@ -43,10 +45,12 @@ namespace Sandbox
         ImGuiNav::Initialize(displayer);
         canvas = new Canvas(rd);
         camera = new Camera();
+        coordinateAxis = new CoordinateAxisRender(rd, canvas->GetRenderPass());
     }
 
     void Terminate()
     {
+        delete coordinateAxis;
         delete camera;
         delete canvas;
         ImGuiNav::Terminate();
@@ -61,7 +65,7 @@ namespace Sandbox
         // update camera
         static bool isDragging = false;
         static bool isFirst = true;
-        static bool lastX = 0.0f, lastY = 0.0f;
+        static float lastX = 0.0f, lastY = 0.0f;
         static int presslist[1024] = { 0 };
 
         if (window->GetKey(GLFW_KEY_F))
@@ -74,7 +78,6 @@ namespace Sandbox
         if (window->GetKey(GLFW_KEY_ESCAPE) && isDragging)
         {
             isDragging = false;
-            isFirst = false;
             window->ShowCursor();
         }
 
@@ -88,11 +91,12 @@ namespace Sandbox
             {
                 lastX = xpos;
                 lastY = ypos;
+                isFirst = false;
             }
 
             float sensitivity = camera->GetSensitivity();
             float xoffset = (xpos - lastX) * sensitivity;
-            float yoffset = (ypos - lastY) * sensitivity;
+            float yoffset = (lastY - ypos) * sensitivity;
 
             lastX = xpos;
             lastY = ypos;
@@ -108,15 +112,10 @@ namespace Sandbox
             camera->SetYaw(yaw);
 
             // move
-            int action;
-            if ((action = window->GetKey(GLFW_KEY_W)))
-                presslist[GLFW_KEY_W] = action;
-            if ((action = window->GetKey(GLFW_KEY_S)))
-                presslist[GLFW_KEY_S] = action;
-            if ((action = window->GetKey(GLFW_KEY_A)))
-                presslist[GLFW_KEY_A] = action;
-            if ((action = window->GetKey(GLFW_KEY_D)))
-                presslist[GLFW_KEY_D] = action;
+            presslist[GLFW_KEY_W] = window->GetKey(GLFW_KEY_W);
+            presslist[GLFW_KEY_S] = window->GetKey(GLFW_KEY_S);
+            presslist[GLFW_KEY_A] = window->GetKey(GLFW_KEY_A);
+            presslist[GLFW_KEY_D] = window->GetKey(GLFW_KEY_D);
 
             vec3 position = camera->GetPosition();
             vec3 front = camera->GetFront();
@@ -140,6 +139,8 @@ namespace Sandbox
 
             camera->SetPosition(position);
         }
+
+        camera->Update();
     }
 
 }

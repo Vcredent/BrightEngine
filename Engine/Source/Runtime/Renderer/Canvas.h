@@ -32,9 +32,13 @@ public:
     Canvas(RenderDevice *vRenderDevice);
    ~Canvas();
 
-    void SetViewport(float vW, float vH) { w = vW; h = vH; }
+    VkRenderPass GetRenderPass() { return renderPass; }
+    void GetFinishedRenderColorAttachment(RenderDevice::Texture2D **ppFinishedRenderColorAttachment)
+      { *ppFinishedRenderColorAttachment = resolve; }
+
+    void SetViewport(uint32_t vW, uint32_t vH);
     void CmdBeginCanvasRendering(VkCommandBuffer *pCmdBuffer);
-    void CmdEndCanvasRendering(VkCommandBuffer cmdBuffer);
+    void CmdEndCanvasRendering();
 
 private:
     void _Initialize();
@@ -43,13 +47,19 @@ private:
 
     RenderDevice *rd;
     VkRenderPass renderPass;
-    RenderDevice::Texture2D *msaa;
+    VkCommandBuffer cmdBuffer;
+    VkQueue queue;
+    VkSampler sampler;
+    RenderDevice::Texture2D *color;
     RenderDevice::Texture2D *depth;
     RenderDevice::Texture2D *resolve;
     VkFramebuffer framebuffer;
 
-    float w;
-    float h;
+    uint32_t w = 32.0f;
+    uint32_t h = 32.0f;
+    VkFormat surfaceFormat;
+    VkFormat depthFormat;
+    VkSampleCountFlagBits sampleCount;
 };
 
 #endif /* _RENDERER_SCENE_RENDER_H_ */

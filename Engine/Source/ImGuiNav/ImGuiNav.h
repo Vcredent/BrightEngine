@@ -43,7 +43,7 @@ namespace ImGuiNav
     void DrawTexture(ImTextureID v_texture, const ImVec2& v_size);
 
     // vulkan
-    ImTextureID AddTexture(VkSampler v_sampler, VkImageView v_image, VkImageLayout v_layout);
+    ImTextureID AddTexture(RenderDevice::Texture2D *texture);
     void RemoveTexture(ImTextureID v_texture);
 }
 

@@ -24,11 +24,23 @@
 
 namespace Sandbox
 {
+    static ImVec2 canvasRegion = ImVec2(32.0f, 32.0f);
+    static RenderDevice::Texture2D *finishedRenderTexture;
+    static ImTextureID preview = NULL;
+
     void DrawCanvas()
     {
+        camera->SetAspectRatio(canvasRegion.x / canvasRegion.y);
+        canvas->SetViewport(canvasRegion.x, canvasRegion.y);
+
         VkCommandBuffer cmdBuffer;
         canvas->CmdBeginCanvasRendering(&cmdBuffer);
-        canvas->CmdEndCanvasRendering(cmdBuffer);
+        {
+            coordinateAxis->SetViewUniformBuffer(camera->GetViewMatrix(), camera->GetProjectionMatrix());
+            coordinateAxis->CmdDrawCoordinateAxisRendering(cmdBuffer, canvasRegion.x, canvasRegion.y);
+        }
+        canvas->CmdEndCanvasRendering();
+        canvas->GetFinishedRenderColorAttachment(&finishedRenderTexture);
     }
 
     void DrawEditor()
@@ -43,8 +55,12 @@ namespace Sandbox
             // draw scene.
             ImGuiNav::BeginViewport("场景");
             {
-                ImVec2 region = ImGui::GetContentRegionAvail();
-                camera->SetAspectRatio(region.x / region.y);
+                canvasRegion = ImGui::GetContentRegionAvail();
+                if (preview)
+                    ImGuiNav::RemoveTexture(preview);
+
+                preview = ImGuiNav::AddTexture(finishedRenderTexture);
+                ImGui::Image(preview, canvasRegion);
             }
             ImGuiNav::EndViewport();
         }

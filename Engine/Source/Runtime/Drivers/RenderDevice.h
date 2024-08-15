@@ -74,8 +74,6 @@ public:
         VkSampleCountFlagBits samples;
         VkFormat format;
         VkImageAspectFlags aspect_mask;
-        VkImageType image_type;
-        VkImageViewType image_view_type;
         VkImageUsageFlags usage;
     };
 

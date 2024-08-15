@@ -24,8 +24,9 @@
 #include <algorithm>
 
 const char *ignore_validation_error[] = {
-        "[ VUID-RuntimeSpirv-samples-08725 ]",
-        "[ VUID-VkWriteDescriptorSet-descriptorType-04150 ]",
+  "[ VUID-NONE ]",
+  "[ VUID-RuntimeSpirv-samples-08725 ]",
+  "[ VUID-VkWriteDescriptorSet-descriptorType-04150 ]",
 };
 
 int last_ignore_runtime_error_index = -1;
@@ -40,11 +41,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     const char *message = pCallbackData->pMessage;
 
     // check ignore error.
-    for (uint32_t i = 0; i < ARRAY_SIZE(ignore_validation_error); i++) {
-        if (strstr(message, ignore_validation_error[i]) != NULL) {
-            goto VALIDATION_DEBUG_CALLBACK_END;
-        }
-    }
+    // for (uint32_t i = 0; i < ARRAY_SIZE(ignore_validation_error); i++) {
+    //     if (strstr(message, ignore_validation_error[i]) != NULL) {
+    //         goto VALIDATION_DEBUG_CALLBACK_END;
+    //     }
+    // }
 
     fprintf(stderr, "%s\n", message);
 VALIDATION_DEBUG_CALLBACK_END:

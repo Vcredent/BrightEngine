@@ -29,7 +29,7 @@
 class Camera
 {
 public:
-    Camera(float vFov = 45.0f, float vNear = 1024.0f, float vFar = 0.1f);
+    Camera(float vFov = 45.0f, float vNear = 0.1f, float vFar = 1024.0f);
    ~Camera();
 
     V_FORCEINLINE void SetPosition(const vec3 &vPosition) { position = vPosition; }

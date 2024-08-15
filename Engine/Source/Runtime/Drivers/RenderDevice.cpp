@@ -133,7 +133,7 @@ RenderDevice::Texture2D *RenderDevice::CreateTexture(TextureCreateInfo *p_create
             /* sType */ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
             /* pNext */ nextptr,
             /* flags */ no_flag_bits,
-            /* imageType */ p_create_info->image_type,
+            /* imageType */ VK_IMAGE_TYPE_2D,
             /* format */ texture->format,
             /* extent */ { p_create_info->width, p_create_info->height, 1 },
             /* mipLevels */ 1,
@@ -157,7 +157,7 @@ RenderDevice::Texture2D *RenderDevice::CreateTexture(TextureCreateInfo *p_create
             /* pNext */ nextptr,
             /* flags */ no_flag_bits,
             /* image */ texture->image,
-            /* viewType */ p_create_info->image_view_type,
+            /* viewType */ VK_IMAGE_VIEW_TYPE_2D,
             /* format */ texture->format,
             /* components */
                 {
@@ -404,8 +404,8 @@ RenderDevice::Pipeline *RenderDevice::CreateGraphicsPipeline(PipelineCreateInfo 
 
     VkShaderModule vertex_shader_module, fragment_shader_module;
 
-    vertex_shader_module = LoadShaderModule(device, p_shader_info->vertex, "vert");
-    fragment_shader_module = LoadShaderModule(device, p_shader_info->fragment, "frag");
+    vertex_shader_module = LoadShaderModule(device, p_shader_info->vertex, "vspv");
+    fragment_shader_module = LoadShaderModule(device, p_shader_info->fragment, "fspv");
 
     VkPipelineShaderStageCreateInfo vertex_shader_create_info = {};
     vertex_shader_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

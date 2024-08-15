@@ -37,10 +37,12 @@ Camera::~Camera()
 
 void Camera::Update()
 {
-    front.x = glm::cos(glm::radians(pitch)) * glm::cos(glm::radians(yaw));
-    front.y = glm::sin(glm::radians(yaw));
+    front.x = glm::cos(glm::radians(yaw)) * glm::cos(glm::radians(pitch));
+    front.y = -glm::sin(glm::radians(pitch));
     front.z = glm::cos(glm::radians(pitch)) * glm::sin(glm::radians(yaw));
+    front = glm::normalize(front);
 
     viewMatrix = glm::lookAt(position, position + front, up);
     projectionMatrix = glm::perspective(fov, aspectRatio, near, far);
+    projectionMatrix[1][1] *= -1;
 }

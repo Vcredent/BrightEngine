@@ -49,6 +49,12 @@
 #  define _CURDIR(path) "../../../" path
 #endif
 
+#if defined(__MINGW32__)
+#  define _SHADER_RESOURCE(path) "../../../../Engine/Shader" path
+#elif defined(_MSC_VER)
+#  define _SHADER_RESOURCE(path) "../../../" path
+#endif
+
 // std::string to const char *
 #define getpchar(str) ( str.c_str() )
 
