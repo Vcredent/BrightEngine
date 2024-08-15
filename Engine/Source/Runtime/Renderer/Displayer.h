@@ -37,8 +37,8 @@ public:
     Window *GetFocusedWindow() { return currentFocusedWindow; }
     void *GetNativeWindow() { return currentFocusedWindow->GetNativeWindow(); }
 
-    void CmdBeginDisplayRendering(VkCommandBuffer *p_cmd_buffer);
-    void CmdEndDisplayRendering(VkCommandBuffer cmdBuffer);
+    void BeginDisplayRendering(VkCommandBuffer *p_cmd_buffer);
+    void EndDisplayRendering(VkCommandBuffer cmdBuffer);
 
 private:
     void _Initialize();

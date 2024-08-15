@@ -20,7 +20,15 @@
 /* limitations under the License.                                           */
 /*                                                                          */
 /* ------------------------------------------------------------------------ */
-#include "Sandbox.h"
+#include <Runtime/Win32/RenderDeviceCotnextWin32.h>
+#include <ImGuiNav/ImGuiNav.h>
+#include <Runtime/Renderer/Canvas.h>
+
+Window *window;
+RenderDeviceContextWin32 *rdc;
+RenderDevice *rd;
+Displayer *displayer;
+Canvas *canvas;
 
 namespace Sandbox
 {
@@ -48,10 +56,29 @@ namespace Sandbox
 int main()
 {
     Sandbox::Initialize();
+    VkCommandBuffer cmdBuffer;
 
     while (!window->IsClose())
     {
         window->PollEvents();
+
+        displayer->BeginDisplayRendering(&cmdBuffer);
+        {
+            ImGuiNav::BeginNewFrame(cmdBuffer);
+            {
+                static bool showDemoFlag = true;
+                ImGui::ShowDemoWindow(&showDemoFlag);
+
+                ImGuiNav::BeginViewport("场景");
+                {
+
+                }
+                ImGuiNav::EndViewport();
+            }
+            ImGuiNav::EndNewFrame(cmdBuffer);
+        }
+        displayer->EndDisplayRendering(cmdBuffer);
+
     }
 
     Sandbox::Terminate();

@@ -47,7 +47,7 @@ Displayer::~Displayer()
     free(displayWindow);
 }
 
-void Displayer::CmdBeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
+void Displayer::BeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
 {
     _UpdateSwapChain();
     vkAcquireNextImageKHR(device, displayWindow->swapchain, UINT64_MAX, displayWindow->imageAvailableSemaphore, nullptr, &acquireNextIndex);
@@ -67,7 +67,7 @@ void Displayer::CmdBeginDisplayRendering(VkCommandBuffer *p_cmd_buffer)
     *p_cmd_buffer = cmdBuffer;
 }
 
-void Displayer::CmdEndDisplayRendering(VkCommandBuffer cmdBuffer)
+void Displayer::EndDisplayRendering(VkCommandBuffer cmdBuffer)
 {
     rd->CmdEndRenderPass(cmdBuffer);
     rd->EndCommandBuffer(cmdBuffer);
