@@ -58,6 +58,51 @@ namespace Sandbox
     }
 }
 
+// 示例数据结构
+struct MyItem {
+    int id;
+    char name[32];
+    float value;
+    bool selected;
+};
+
+void ShowEditableTable() {
+    // 创建示例数据
+    static MyItem items[] = {
+      { 1, "Item 1", 0.5f, false },
+      { 2, "Item 2", 1.0f, true },
+      { 3, "Item 3", 0.7f, false },
+    };
+    static int itemCount = sizeof(items) / sizeof(items[0]);
+
+    // 开始表格
+    if (ImGui::BeginTable("EditableTable", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+        // 设置列标题
+        ImGui::TableSetupColumn("ID");
+        ImGui::TableSetupColumn("Name");
+        ImGui::TableSetupColumn("Value");
+        ImGui::TableSetupColumn("Selected");
+        ImGui::TableHeadersRow();
+
+        // 填充表格数据
+        for (int row = 0; row < itemCount; row++) {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%d", items[row].id);
+
+            ImGui::TableSetColumnIndex(1);
+            ImGui::InputText("##Name", items[row].name, IM_ARRAYSIZE(items[row].name));
+
+            ImGui::TableSetColumnIndex(2);
+            ImGui::SliderFloat("##Value", &items[row].value, 0.0f, 1.0f);
+
+            ImGui::TableSetColumnIndex(3);
+            ImGui::Checkbox("##Selected", &items[row].selected);
+        }
+        ImGui::EndTable();
+    }
+}
+
 int main()
 {
     Sandbox::Initialize();
@@ -76,13 +121,13 @@ int main()
         camera.SetAspectRatio(region.x / region.y);
         camera.Update();
 
-        canvas->BeginCanvasRendering(&cmdBuffer, region.x, region.y);
-        {
-            coordinateAxisLine->SetViewUniformBuffer(camera.GetViewMatrix(), camera.GetProjectionMatrix());
-            coordinateAxisLine->CmdDrawCoordinateAxisRendering(cmdBuffer, region.x, region.y);
-        }
-        canvas->EndCanvasRendering();
-        canvas->GetFinishedRenderColorAttachment(&preview);
+//        canvas->BeginCanvasRendering(&cmdBuffer, region.x, region.y);
+//        {
+//            coordinateAxisLine->SetViewUniformBuffer(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+//            coordinateAxisLine->CmdDrawCoordinateAxisRendering(cmdBuffer, region.x, region.y);
+//        }
+//        canvas->EndCanvasRendering();
+//        canvas->GetFinishedRenderColorAttachment(&preview);
 
         displayer->BeginDisplayRendering(&cmdBuffer);
         {
@@ -91,28 +136,12 @@ int main()
                 static bool showDemoFlag = true;
                 ImGui::ShowDemoWindow(&showDemoFlag);
 
-                ImGuiEx::Begin("调试");
+                ImGui::Begin("Table data");
                 {
-                    Vector3 position = camera.GetPosition();
-                    ImGuiEx::DragFloat3("位置", glm::value_ptr(position), 0.01f);
-                    camera.SetPosition(position);
-                    Vector3 direction = camera.GetDirection();
-                    ImGuiEx::DragFloat3("方向", glm::value_ptr(direction), 0.01f);
-                    camera.SetDirection(direction);
+                    ShowEditableTable();
                 }
-                ImGuiEx::End();
+                ImGui::End();
 
-                ImGuiEx::BeginViewport("场景");
-                {
-                    region = ImGui::GetContentRegionAvail();
-
-                    if (imPreview)
-                        ImGuiEx::DestroyImTextureID(imPreview);
-                    imPreview = ImGuiEx::CreateImTextureID(preview);
-
-                    ImGui::Image(imPreview, region);
-                }
-                ImGuiEx::EndViewport();
             }
             ImGuiEx::EndNewFrame(cmdBuffer);
         }
